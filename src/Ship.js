@@ -7,10 +7,13 @@ export class Ship {
     this.height = height;
     this.positionX = positionX;
     this.positionY = positionY;
+    this.velocity = {
+      x: 0,
+      y: 0
+    }
     this.image = new Image();
 
     this.addImageUrl(ShipImagePng);
-    this.drawImage(this.positionX, this.positionY);
   }
 
   addImageUrl(imageUrl) {
@@ -19,17 +22,34 @@ export class Ship {
     }
   }
 
-  drawImage(positionX, positionY) {
+  initalizeShip() {
+    this.image.onload = () => {
+      this. draw()
+    };
+  }
+
+  draw(){
     if (this.image) {
-      this.image.onload = () => {
-        ctx.drawImage(
+      ctx.drawImage(
           this.image,
-          positionX,
-          positionY,
+          this.positionX,
+          this.positionY,
           this.width,
           this.height,
-        );
-      };
+      );
     }
+  }
+
+  resetVelocity(){
+    this.velocity = {
+      x: 0,
+      y: 0
+    }
+  }
+
+  updateShip(){
+    this.draw()
+    this.positionX += this.velocity.x
+    this.positionY += this.velocity.y
   }
 }
