@@ -1,5 +1,5 @@
 import { Ship } from "./Ship.js";
-import { SHIP_HEIGHT, SHIP_WIDTH } from "./gameConfig.js";
+import {ROTATION_ANGLE, SHIP_HEIGHT, SHIP_VELOCITY, SHIP_WIDTH} from "./gameConfig.js";
 
 export const canvas = document.getElementById("chicken-invaders-canvas");
 export const ctx = canvas.getContext("2d");
@@ -10,7 +10,7 @@ const canvasHeight = window.innerHeight
 canvas.width = canvasWidth;
 canvas.height = canvasHeight;
 
-const ship = new Ship({
+export const ship = new Ship({
     width: SHIP_WIDTH,
     height: SHIP_HEIGHT,
     positionX: canvas.width / 2,
@@ -41,16 +41,18 @@ const updateKeyState = (event, isPressed) => {
 
 function  updateShipPosition(){
     if(keyPressedMap["TURN_LEFT"]){
-        ship.velocity.x = -5
+        ship.velocity.x = -SHIP_VELOCITY
+        ship.rotation = -ROTATION_ANGLE
         return
     }
 
     if(keyPressedMap["TURN_RIGHT"]){
-        ship.velocity.x = 5
+        ship.velocity.x = SHIP_VELOCITY
+        ship.rotation = ROTATION_ANGLE
         return
     }
 
-    ship.resetVelocity()
+    ship.resetShip()
 }
 
 
