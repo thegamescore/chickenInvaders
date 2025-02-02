@@ -48,7 +48,6 @@ export class Ship {
       )
 
       ctx.restore()
-
     }
   }
 

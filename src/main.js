@@ -41,12 +41,24 @@ const updateKeyState = (event, isPressed) => {
 
 function  updateShipPosition(){
     if(keyPressedMap["TURN_LEFT"]){
+        //prevent ship from overlapping map
+        if(ship.positionX <= 0){
+            ship.resetShip()
+            return
+        }
+
         ship.velocity.x = -SHIP_VELOCITY
         ship.rotation = -ROTATION_ANGLE
         return
     }
 
     if(keyPressedMap["TURN_RIGHT"]){
+        //prevent ship from overlapping map
+        if(ship.positionX >= canvasWidth - SHIP_WIDTH){
+            ship.resetShip()
+            return
+        }
+
         ship.velocity.x = SHIP_VELOCITY
         ship.rotation = ROTATION_ANGLE
         return
@@ -54,8 +66,6 @@ function  updateShipPosition(){
 
     ship.resetShip()
 }
-
-
 
 window.addEventListener('keydown', event => updateKeyState(event, true));
 window.addEventListener('keyup', event => updateKeyState(event, false));
@@ -66,7 +76,7 @@ function draw() {
     ctx.save();
     ship.updateShip();
     updateShipPosition()
-    console.log(keyPressedMap)
+
 }
 
 draw();
