@@ -9,7 +9,10 @@ import {
     SHIP_WIDTH
 } from "./gameConfig.js";
 import {Projectile} from "./Projectile.js";
-import {avalableShootingModes} from "./const.js";
+import {availableShootingModes,  keyMap} from "./const.js";
+
+export const isAutoShotMode = MODE === availableShootingModes.AUTO
+export const isKeyPressMode = MODE === availableShootingModes.KEY_PRESS
 
 export const canvas = document.getElementById("chicken-invaders-canvas");
 export const ctx = canvas.getContext("2d");
@@ -60,7 +63,7 @@ const appendProjectTile = () => {
 }
 
 
-if(MODE === avalableShootingModes.AUTO){
+if(isAutoShotMode){
     //automatic shot after
     setInterval(() => {
         appendProjectTile()
@@ -68,23 +71,12 @@ if(MODE === avalableShootingModes.AUTO){
 }
 
 
-
 // -----------------
-
-const keyMap = {
-    TURN_LEFT: 'ArrowLeft',
-    TURN_RIGHT: 'ArrowRight',
-    TURN_DOWN: 'ArrowDown',
-    TURN_UP: 'ArrowUp',
-    SPACE: 'Space'
-};
 
 /** @type {Record<string, boolean>} */
 const keyPressedMap = Object.fromEntries(
     Object.keys(keyMap).map(key => [key, false])
 );
-
-console.log(keyPressedMap)
 
 const updateKeyState = (event, isPressed) => {
     for (const [action, key] of Object.entries(keyMap)) {
@@ -123,7 +115,7 @@ function  updateShipPosition(){
 }
 
 window.addEventListener('keydown', event => {
-    if(event.code === keyMap.SPACE && !keyPressedMap["SPACE"]){
+    if(isKeyPressMode && event.code === keyMap.SHOT && !keyPressedMap["SPACE"]){
         setTimeout(() => {
             appendProjectTile()
         }, 0)
@@ -164,7 +156,6 @@ function draw() {
         cleanUpProjectTile(projectile, index)
         projectile.update()
     })
-
 }
 
 
