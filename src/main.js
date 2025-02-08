@@ -90,33 +90,39 @@ function  updateShipPosition(){
 window.addEventListener('keydown', event => updateKeyState(event, true));
 window.addEventListener('keyup', event => updateKeyState(event, false));
 
-//when position of project tile if offscreen the do clean up
-const cleanUpProjectTiles = () => {
-    projectTiles.forEach((projectile, index) => {
-        const ifOffScreen = projectile.position.x < 0 || // left boundary
-            projectile.position.x > canvasWidth || // right boundary
-            projectile.position.y < 0 || // top boundary
-            projectile.position.y > canvasHeight // bottom boundary
+//when position of project tile if offscreen then do clean up
+const cleanUpProjectTile = (projectile, index) => {
+    const ifOffScreen = projectile.position.x < 0 || // left boundary
+        projectile.position.x > canvasWidth || // right boundary
+        projectile.position.y < 0 || // top boundary
+        projectile.position.y > canvasHeight // bottom boundary
 
-        if(ifOffScreen){
+    if(ifOffScreen){
+        setTimeout(() => {
             projectTiles.splice(index, 1)
-        }
-
-        projectile.update()
-    })
+        }, 0)
+    }
 }
+
+
 
 function draw() {
     window.requestAnimationFrame(draw);
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     ctx.save();
-    ship.updateShip();
 
+    //ship
+    ship.updateShip();
     updateShipPosition()
 
+    //projectTiles
+    projectTiles.forEach((projectile, index) => {
+        cleanUpProjectTile(projectile, index)
+        projectile.update()
+    })
 
-    cleanUpProjectTiles()
 }
+
 
 draw();
 
