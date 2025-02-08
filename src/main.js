@@ -1,5 +1,13 @@
 import { Ship } from "./Ship.js";
-import {ROTATION_ANGLE, SHIP_HEIGHT, SHIP_VELOCITY, SHIP_WIDTH} from "./gameConfig.js";
+import {
+    INTERVAL_BETWEEN_SHOOTING_IN_MS,
+    PROJECT_TILE_DIMENSIONS,
+    PROJECT_TILE_SPEED,
+    ROTATION_ANGLE,
+    SHIP_HEIGHT,
+    SHIP_VELOCITY,
+    SHIP_WIDTH
+} from "./gameConfig.js";
 import {Projectile} from "./Projectile.js";
 
 export const canvas = document.getElementById("chicken-invaders-canvas");
@@ -16,26 +24,39 @@ canvas.height = canvasHeight;
 export const ship = new Ship({
     width: SHIP_WIDTH,
     height: SHIP_HEIGHT,
-    positionX: canvas.width / 2,
-    positionY: canvas.height - 150
+    position: {
+        x: canvas.width / 2,
+        y: canvas.height - 150
+    },
+    velocity: {
+        x: 0,
+        y: 0
+    }
 })
 
-ship.initalizeShip();
+ship.initializeShip();
 
 // PROJECT TILES -----------------
 
 const projectTiles = []
 
+//automatic shot after
 setInterval(() => {
     const projectile = new Projectile({
         position: {
-            x: ship.positionX + ship.width / 2,
-            y: ship.positionY
-        }
+            x: ship.position.x + ship.width / 2,
+            y: ship.position.y
+        },
+        velocity: {
+            x: 0,
+            y: PROJECT_TILE_SPEED
+        },
+        width: PROJECT_TILE_DIMENSIONS.width,
+        height: PROJECT_TILE_DIMENSIONS.height
     })
 
     projectTiles.push(projectile)
-},200)
+}, INTERVAL_BETWEEN_SHOOTING_IN_MS)
 
 // -----------------
 
@@ -62,7 +83,7 @@ const updateKeyState = (event, isPressed) => {
 function  updateShipPosition(){
     if(keyPressedMap["TURN_LEFT"]){
         //prevent ship from overlapping map
-        if(ship.positionX <= 0){
+        if(ship.position.x <= 0){
             ship.resetShip()
             return
         }
@@ -74,7 +95,7 @@ function  updateShipPosition(){
 
     if(keyPressedMap["TURN_RIGHT"]){
         //prevent ship from overlapping map
-        if(ship.positionX >= canvasWidth - SHIP_WIDTH){
+        if(ship.position.x >= canvasWidth - SHIP_WIDTH){
             ship.resetShip()
             return
         }

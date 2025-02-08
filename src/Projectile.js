@@ -1,20 +1,25 @@
-import {ctx, ship} from "./main.js";
+import {ctx} from "./main.js";
 import ProjectileImagePng from "./assets/projectile.png";
-import {PROJECT_TILE_DIMENSIONS, PROJECT_TILE_SPEED} from "./gameConfig.js";
 
 export class Projectile {
+    /**
+     * Creates an instance of Projectile.
+     * @param {{ x: number, y: number }} position - The position of the projectile.
+     * @param {{ x: number, y: number }} velocity - The velocity of the projectile.
+     * @param {number} width - The width of the projectile.
+     * @param {number} height - The height of the projectile.
+     */
     constructor({
                     position,
-                    velocity
+                    velocity,
+                    width,
+                    height
                 }) {
         this.position = position;
         this.image = new Image();
-        this.velocity = {
-            x: 0,
-            y: PROJECT_TILE_SPEED
-        };
-        this.width = PROJECT_TILE_DIMENSIONS.width;
-        this.height = PROJECT_TILE_DIMENSIONS.height
+        this.velocity = velocity;
+        this.width = width;
+        this.height = height
 
         this.addImageUrl(ProjectileImagePng)
     }
