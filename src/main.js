@@ -104,8 +104,6 @@ const cleanUpProjectTile = (projectile, index) => {
     }
 }
 
-
-
 function draw() {
     window.requestAnimationFrame(draw);
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
