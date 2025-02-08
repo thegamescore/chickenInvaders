@@ -1,6 +1,6 @@
 import { Ship } from "./Ship.js";
 import {
-    INTERVAL_BETWEEN_SHOOTING_IN_MS,
+    INTERVAL_BETWEEN_SHOOTING_IN_MS, MODE,
     PROJECT_TILE_DIMENSIONS,
     PROJECT_TILE_SPEED,
     ROTATION_ANGLE,
@@ -9,6 +9,7 @@ import {
     SHIP_WIDTH
 } from "./gameConfig.js";
 import {Projectile} from "./Projectile.js";
+import {avalableShootingModes} from "./const.js";
 
 export const canvas = document.getElementById("chicken-invaders-canvas");
 export const ctx = canvas.getContext("2d");
@@ -40,8 +41,8 @@ ship.initializeShip();
 
 const projectTiles = []
 
-//automatic shot after
-setInterval(() => {
+
+const appendProjectTile = () => {
     const projectile = new Projectile({
         position: {
             x: ship.position.x + ship.width / 2,
@@ -56,7 +57,17 @@ setInterval(() => {
     })
 
     projectTiles.push(projectile)
-}, INTERVAL_BETWEEN_SHOOTING_IN_MS)
+}
+
+
+if(MODE === avalableShootingModes.AUTO){
+    //automatic shot after
+    setInterval(() => {
+        appendProjectTile()
+    }, INTERVAL_BETWEEN_SHOOTING_IN_MS)
+}
+
+
 
 // -----------------
 
@@ -64,7 +75,8 @@ const keyMap = {
     TURN_LEFT: 'ArrowLeft',
     TURN_RIGHT: 'ArrowRight',
     TURN_DOWN: 'ArrowDown',
-    TURN_UP: 'ArrowUp'
+    TURN_UP: 'ArrowUp',
+    SPACE: 'Space'
 };
 
 /** @type {Record<string, boolean>} */
@@ -72,9 +84,11 @@ const keyPressedMap = Object.fromEntries(
     Object.keys(keyMap).map(key => [key, false])
 );
 
+console.log(keyPressedMap)
+
 const updateKeyState = (event, isPressed) => {
     for (const [action, key] of Object.entries(keyMap)) {
-        if (event.key === key) {
+        if (event.code === key) {
             keyPressedMap[action] = isPressed;
         }
     }
@@ -108,7 +122,18 @@ function  updateShipPosition(){
     ship.resetShip()
 }
 
-window.addEventListener('keydown', event => updateKeyState(event, true));
+window.addEventListener('keydown', event => {
+    if(event.code === keyMap.SPACE && !keyPressedMap["SPACE"]){
+        setTimeout(() => {
+            appendProjectTile()
+        }, 0)
+    }
+
+    // updateKeyState is placed at the end to ensure that any key-hold prevention logic
+    updateKeyState(event, true);
+});
+
+
 window.addEventListener('keyup', event => updateKeyState(event, false));
 
 //when position of project tile if offscreen then do clean up
