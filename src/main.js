@@ -1,5 +1,6 @@
 import { Ship } from "./Ship.js";
 import {ROTATION_ANGLE, SHIP_HEIGHT, SHIP_VELOCITY, SHIP_WIDTH} from "./gameConfig.js";
+import {Projectile} from "./Projectile.js";
 
 export const canvas = document.getElementById("chicken-invaders-canvas");
 export const ctx = canvas.getContext("2d");
@@ -10,6 +11,8 @@ const canvasHeight = window.innerHeight
 canvas.width = canvasWidth;
 canvas.height = canvasHeight;
 
+// SHIP -----------------
+
 export const ship = new Ship({
     width: SHIP_WIDTH,
     height: SHIP_HEIGHT,
@@ -18,6 +21,23 @@ export const ship = new Ship({
 })
 
 ship.initalizeShip();
+
+// PROJECT TILES -----------------
+
+const projectTiles = []
+
+setInterval(() => {
+    const projectile = new Projectile({
+        position: {
+            x: ship.positionX + ship.width / 2,
+            y: ship.positionY
+        }
+    })
+
+    projectTiles.push(projectile)
+},200)
+
+// -----------------
 
 const keyMap = {
     TURN_LEFT: 'ArrowLeft',
@@ -70,13 +90,32 @@ function  updateShipPosition(){
 window.addEventListener('keydown', event => updateKeyState(event, true));
 window.addEventListener('keyup', event => updateKeyState(event, false));
 
+//when position of project tile if offscreen the do clean up
+const cleanUpProjectTiles = () => {
+    projectTiles.forEach((projectile, index) => {
+        const ifOffScreen = projectile.position.x < 0 || // left boundary
+            projectile.position.x > canvasWidth || // right boundary
+            projectile.position.y < 0 || // top boundary
+            projectile.position.y > canvasHeight // bottom boundary
+
+        if(ifOffScreen){
+            projectTiles.splice(index, 1)
+        }
+
+        projectile.update()
+    })
+}
+
 function draw() {
     window.requestAnimationFrame(draw);
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     ctx.save();
     ship.updateShip();
+
     updateShipPosition()
 
+
+    cleanUpProjectTiles()
 }
 
 draw();
