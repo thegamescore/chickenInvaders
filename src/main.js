@@ -1,6 +1,6 @@
 import { Ship } from "./Ship.js";
 import {
-    INTERVAL_BETWEEN_SHOOTING_IN_MS, MODE,
+    INTERVAL_BETWEEN_SHOOTING_IN_MS, INVADER_HEIGHT, INVADER_WIDTH, MODE,
     PROJECT_TILE_DIMENSIONS,
     PROJECT_TILE_SPEED,
     ROTATION_ANGLE,
@@ -10,6 +10,7 @@ import {
 } from "./gameConfig.js";
 import {Projectile} from "./Projectile.js";
 import {availableShootingModes,  keyMap} from "./const.js";
+import {Invader} from "./Invader.js";
 
 export const isAutoShotMode = MODE === availableShootingModes.AUTO
 export const isKeyPressMode = MODE === availableShootingModes.KEY_PRESS
@@ -38,7 +39,22 @@ export const ship = new Ship({
     }
 })
 
+const invader = new Invader({
+    width:  INVADER_WIDTH,
+    height: INVADER_HEIGHT,
+    position: {
+        x: (canvas.width - INVADER_WIDTH) / 2,
+        y: canvas.height / 2
+    },
+    velocity: {
+        x: 0,
+        y: 0
+    }
+})
+
 ship.initializeShip();
+invader.initializeInvader()
+
 
 // PROJECT TILES -----------------
 
@@ -149,6 +165,7 @@ function draw() {
 
     //ship
     ship.updateShip();
+    invader.updateInvader()
     updateShipPosition()
 
     //projectTiles
