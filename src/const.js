@@ -3,8 +3,6 @@ export const availableShootingModes = {
     KEY_PRESS: "KEY_PRESS"
 }
 
-
-
 export const keyMap = {
     TURN_LEFT: 'ArrowLeft',
     TURN_RIGHT: 'ArrowRight',

@@ -115,7 +115,7 @@ function  updateShipPosition(){
 }
 
 window.addEventListener('keydown', event => {
-    if(isKeyPressMode && event.code === keyMap.SHOT && !keyPressedMap["SPACE"]){
+    if(isKeyPressMode && event.code === keyMap.SHOT && !keyPressedMap["SHOT"]){
         setTimeout(() => {
             appendProjectTile()
         }, 0)
