@@ -44,7 +44,11 @@ ship.initializeShip();
 
 
 const invaders = new Invaders()
-invaders.initialize()
+invaders.initialize(
+    {
+        numberOfInvaders: 40, gridSize: 10
+    }
+)
 
 
 // PROJECT TILES -----------------
@@ -76,10 +80,6 @@ if(isAutoShotMode){
         appendProjectTile()
     }, INTERVAL_BETWEEN_SHOOTING_IN_MS)
 }
-
-
-// -----------------
-
 
 //when position of project tile if offscreen then do clean up
 const cleanUpProjectTile = (projectile, index) => {
@@ -122,8 +122,7 @@ function draw() {
     updateShipPosition()
 
 
-    // moveInvaders(invaders, canvasWidth)
-    invaders.updateInvaders()
+    invaders.moveInvaders()
 
 
     //projectTiles
