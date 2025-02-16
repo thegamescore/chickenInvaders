@@ -49,12 +49,12 @@ export class Invader {
         }
     }
 
-    resetInvader(){
-        this.velocity = {
-            x: 0,
-            y: 0
-        }
-    }
+    // resetInvader(){
+    //     this.velocity = {
+    //         x: 0,
+    //         y: 0
+    //     }
+    // }
 
     updateInvader(){
         this.draw()
