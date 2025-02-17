@@ -49,13 +49,6 @@ export class Invader {
         }
     }
 
-    // resetInvader(){
-    //     this.velocity = {
-    //         x: 0,
-    //         y: 0
-    //     }
-    // }
-
     updateInvader(velocity){
         this.draw()
         this.position.x += velocity.x

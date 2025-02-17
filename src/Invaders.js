@@ -1,5 +1,5 @@
 import {Invader} from "./Invader.js";
-import {INVADER_HEIGHT, INVADER_WIDTH,  INVADERS_GAP_X, INVADERS_GAP_Y} from "./gameConfig.js";
+import {INVADER_HEIGHT, INVADER_WIDTH, INVADERS_GAP_X, INVADERS_GAP_Y, INVADERS_VELOCITY} from "./gameConfig.js";
 import {canvas, canvasWidth} from "./main.js";
 
 export class Invaders {
@@ -51,7 +51,6 @@ export class Invaders {
     initialize({
                    numberOfInvaders , gridSize
                }){
-        console.log(numberOfInvaders)
 
         this.create({
             numberOfInvaders, gridSize
@@ -62,36 +61,24 @@ export class Invaders {
         })
     }
 
-    moveInvaders(){
-        this.update()
 
-        this.invaders.forEach(invader => {
-            invader.updateInvader({
-                x: this.velocity.x,
-                y: this.velocity.y
-            })
-        })
-    }
 
     update(){
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
 
         if(!this.velocity.x){
-            this.velocity.x = 5
+            this.velocity.x = INVADERS_VELOCITY
         }
 
         if(this.position.x  + 200  <= 0){
-            this.velocity.x = 5
+            this.velocity.x = INVADERS_VELOCITY
         }
 
         if((this.position.x + this.gridWidth + 200) > canvasWidth){
-            this.velocity.x = -5
+            this.velocity.x = -INVADERS_VELOCITY
         }
-
     }
-
-
 }
 
 

@@ -121,8 +121,30 @@ function draw() {
     ship.updateShip();
     updateShipPosition()
 
+    invaders.update()
 
-    invaders.moveInvaders()
+
+
+    invaders.invaders.forEach((invader, invaderIndex) => {
+        invader.updateInvader({
+            x: invaders.velocity.x,
+            y: invaders.velocity.y
+        });
+
+        projectTiles.forEach((projectile, projectileIndex) => {
+            if (
+                projectile.position.x >= invader.position.x &&
+                projectile.position.x <= invader.position.x + invader.width &&
+                projectile.position.y >= invader.position.y &&
+                projectile.position.y <= invader.position.y + invader.height
+            ) {
+                setTimeout(() => {
+                    invaders.invaders.splice(invaderIndex, 1);
+                    projectTiles.splice(projectileIndex, 1);
+                }, 0);
+            }
+        });
+    });
 
 
     //projectTiles

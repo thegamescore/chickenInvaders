@@ -12,6 +12,7 @@ export const INVADER_WIDTH = 87.5;
 export const INVADER_HEIGHT = 47.5;
 export const INVADERS_GAP_X = 75
 export const INVADERS_GAP_Y = 100
+export const INVADERS_VELOCITY = 2
 
 export const INTERVAL_BETWEEN_SHOOTING_IN_MS = 200
 export const PROJECT_TILE_SPEED = 5
