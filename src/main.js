@@ -12,9 +12,15 @@ import {availableShootingModes, keyMap} from "./const.js";
 
 import { Invaders} from "./Invaders.js";
 import {keyPressedMap, updateKeyState, updateShipPosition} from "./controls.js";
-import ProjectileImagePng from "./assets/projectile.png";
+
 import {InvaderProjectTile} from "./InvaderProjectTile.js";
 import {getRandomArrElement} from "./helpers/helpers.js";
+
+
+
+import ProjectileImagePng from "./assets/projectile.png";
+import ProjectTileInvarderImagePng from './assets/projecttile-invader.png'
+
 
 export const isAutoShotMode = MODE === availableShootingModes.AUTO
 export const isKeyPressMode = MODE === availableShootingModes.KEY_PRESS
@@ -101,7 +107,7 @@ const appendInvaderProjecttile = () => {
         speed: 4,
         width: 50,
         height: 50,
-        imagePng: ProjectileImagePng
+        imagePng: ProjectTileInvarderImagePng
     });
 
     invadersProjectTile.push(projectile)
