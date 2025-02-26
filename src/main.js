@@ -12,6 +12,8 @@ import {availableShootingModes, keyMap} from "./const.js";
 
 import { Invaders} from "./Invaders.js";
 import {keyPressedMap, updateKeyState, updateShipPosition} from "./controls.js";
+import ProjectileImagePng from "./assets/projectile.png";
+import {InvaderProjectTile} from "./InvaderProjectTile.js";
 
 export const isAutoShotMode = MODE === availableShootingModes.AUTO
 export const isKeyPressMode = MODE === availableShootingModes.KEY_PRESS
@@ -81,6 +83,31 @@ if(isAutoShotMode){
     }, INTERVAL_BETWEEN_SHOOTING_IN_MS)
 }
 
+const invadersProjectTile = []
+
+const appendInvaderProjecttile = () => {
+    const projectile = new InvaderProjectTile({
+        startPosition: {
+            x: invaders.position.x + invaders.gridWidth + Math.random(25),
+            y: 250 + Math.random(25)
+        },
+        targetPosition: {
+            x: ship.position.x,
+            y: ship.position.y
+        },
+        speed: 4,
+        width: 50,
+        height: 50,
+        imagePng: ProjectileImagePng
+    });
+
+    invadersProjectTile.push(projectile)
+}
+
+setInterval(() => {
+    appendInvaderProjecttile()
+}, 1000)
+
 //when position of project tile if offscreen then do clean up
 const cleanUpProjectTile = (projectile, index) => {
     const ifOffScreen = projectile.position.x < 0 || // left boundary
@@ -123,8 +150,6 @@ function draw() {
 
     invaders.update()
 
-
-
     invaders.invaders.forEach((invader, invaderIndex) => {
         invader.updateInvader({
             x: invaders.velocity.x,
@@ -150,6 +175,10 @@ function draw() {
     //projectTiles
     projectTiles.forEach((projectile, index) => {
         cleanUpProjectTile(projectile, index)
+        projectile.update()
+    })
+
+    invadersProjectTile.forEach((projectile, index) => {
         projectile.update()
     })
 }

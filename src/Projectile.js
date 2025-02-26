@@ -51,6 +51,4 @@ export class Projectile {
 
         this.position.y -= this.velocity.y
     }
-
-
 }
