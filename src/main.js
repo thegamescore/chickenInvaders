@@ -1,6 +1,6 @@
 import {Ship} from "./Ship.js";
 import {
-    INTERVAL_BETWEEN_SHOOTING_IN_MS,
+    INTERVAL_BETWEEN_SHOOTING_IN_MS, INVADER_HEIGHT, INVADER_WIDTH,
     MODE,
     PROJECT_TILE_DIMENSIONS,
     PROJECT_TILE_SPEED,
@@ -14,6 +14,7 @@ import { Invaders} from "./Invaders.js";
 import {keyPressedMap, updateKeyState, updateShipPosition} from "./controls.js";
 import ProjectileImagePng from "./assets/projectile.png";
 import {InvaderProjectTile} from "./InvaderProjectTile.js";
+import {getRandomArrElement} from "./helpers/helpers.js";
 
 export const isAutoShotMode = MODE === availableShootingModes.AUTO
 export const isKeyPressMode = MODE === availableShootingModes.KEY_PRESS
@@ -86,10 +87,12 @@ if(isAutoShotMode){
 const invadersProjectTile = []
 
 const appendInvaderProjecttile = () => {
+    const randomInvader = getRandomArrElement(invaders.invaders)
+
     const projectile = new InvaderProjectTile({
         startPosition: {
-            x: invaders.position.x + invaders.gridWidth + Math.random(25),
-            y: 250 + Math.random(25)
+            x: randomInvader.position.x + INVADER_WIDTH / 2,
+            y: randomInvader.position.y +  INVADER_HEIGHT / 2
         },
         targetPosition: {
             x: ship.position.x,
@@ -104,7 +107,7 @@ const appendInvaderProjecttile = () => {
     invadersProjectTile.push(projectile)
 }
 
-setInterval(() => {
+const invadersShootingInterval = setInterval(() => {
     appendInvaderProjecttile()
 }, 1000)
 
@@ -181,6 +184,11 @@ function draw() {
     invadersProjectTile.forEach((projectile, index) => {
         projectile.update()
     })
+
+    if(invaders.invaders.length <= 0){
+        clearInterval(invadersShootingInterval)
+    }
+
 }
 
 
