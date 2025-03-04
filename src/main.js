@@ -1,6 +1,8 @@
 import {Ship} from "./Ship.js";
 import {
-    INTERVAL_BETWEEN_SHOOTING_IN_MS, INVADER_HEIGHT, INVADER_WIDTH,
+    INTERVAL_BETWEEN_SHOOTING_IN_MS,
+    INVADER_HEIGHT,
+    INVADER_WIDTH,
     MODE,
     PROJECT_TILE_DIMENSIONS,
     PROJECT_TILE_SPEED,
@@ -10,16 +12,12 @@ import {
 import {Projectile} from "./Projectile.js";
 import {availableShootingModes, keyMap} from "./const.js";
 
-import { Invaders} from "./Invaders.js";
+import {Invaders} from "./Invaders.js";
 import {keyPressedMap, updateKeyState, updateShipPosition} from "./controls.js";
 
 import {InvaderProjectTile} from "./InvaderProjectTile.js";
-import {getRandomArrElement} from "./helpers/helpers.js";
-
-
-
-import ProjectileImagePng from "./assets/projectile.png";
-import ProjectTileInvarderImagePng from './assets/projecttile-invader.png'
+import {getRandomArrElement, removeProjectile} from "./helpers/helpers.js";
+import ProjectTileInvaderImagePng from './assets/projecttile-invader.png'
 
 
 export const isAutoShotMode = MODE === availableShootingModes.AUTO
@@ -107,7 +105,7 @@ const appendInvaderProjecttile = () => {
         speed: 4,
         width: 50,
         height: 50,
-        imagePng: ProjectTileInvarderImagePng
+        imagePng: ProjectTileInvaderImagePng
     });
 
     invadersProjectTile.push(projectile)
@@ -126,7 +124,7 @@ const cleanUpProjectTile = (projectile, index) => {
 
     if(ifOffScreen){
         setTimeout(() => {
-            projectTiles.splice(index, 1)
+            removeProjectile(projectTiles, index)
         }, 0)
     }
 }
@@ -146,6 +144,18 @@ window.addEventListener('keydown', event => {
 
 
 window.addEventListener('keyup', event => updateKeyState(event, false));
+
+function isColliding(projectile, ship) {
+    return (
+        projectile.position.x + projectile.width > ship.position.x &&
+        projectile.position.x < ship.position.x + ship.width &&
+        projectile.position.y > ship.position.y &&
+        projectile.position.y < ship.position.y + ship.height
+    );
+}
+
+
+
 
 //game looop
 function draw() {
@@ -179,8 +189,6 @@ function draw() {
             }
         });
     });
-
-
     //projectTiles
     projectTiles.forEach((projectile, index) => {
         cleanUpProjectTile(projectile, index)
@@ -188,8 +196,13 @@ function draw() {
     })
 
     invadersProjectTile.forEach((projectile, index) => {
-        projectile.update()
-    })
+        if (isColliding(projectile, ship)) {
+            removeProjectile(invadersProjectTile, index)
+        }
+
+        projectile.update();
+    });
+
 
     if(invaders.invaders.length <= 0){
         clearInterval(invadersShootingInterval)
