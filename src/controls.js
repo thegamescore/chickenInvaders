@@ -1,4 +1,4 @@
-import {keyMap} from "./const.js";
+import {keyMap} from "./utils/const.js";
 import {canvasWidth, ship} from "./main.js";
 import {ROTATION_ANGLE, SHIP_VELOCITY, SHIP_WIDTH} from "./gameConfig.js";
 

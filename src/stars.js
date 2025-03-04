@@ -27,7 +27,6 @@ export function initializeStars() {
     }
 }
 
-
 export function updateStars() {
     stars.forEach(star => {
         if (star.increasing) {

@@ -10,7 +10,7 @@ import {
     SHIP_WIDTH
 } from "./gameConfig.js";
 import {Projectile} from "./Projectile.js";
-import {availableShootingModes, keyMap} from "./const.js";
+import {availableShootingModes, keyMap} from "./utils/const.js";
 
 import {Invaders} from "./Invaders.js";
 import {keyPressedMap, updateKeyState, updateShipPosition} from "./controls.js";
@@ -19,6 +19,8 @@ import {InvaderProjectTile} from "./InvaderProjectTile.js";
 import {getRandomArrElement, removeProjectile} from "./helpers/helpers.js";
 import ProjectTileInvaderImagePng from './assets/projecttile-invader.png'
 import {drawStars, initializeStars, updateStars} from "./stars.js";
+import {isProjectTileCollidingWithInvader, isProjectTileCollidingWithShip} from "./collisions.js";
+import {Live} from "./Live.js";
 
 
 export const isAutoShotMode = MODE === availableShootingModes.AUTO
@@ -63,7 +65,6 @@ invaders.initialize(
 // PROJECT TILES -----------------
 
 const projectTiles = []
-
 
 const appendProjectTile = () => {
     const projectile = new Projectile({
@@ -147,18 +148,32 @@ window.addEventListener('keydown', event => {
 
 window.addEventListener('keyup', event => updateKeyState(event, false));
 
+initializeStars();
 
+const updateLives = () => {
+    const lives = []
 
-function isColliding(projectile, ship) {
-    return (
-        projectile.position.x + projectile.width > ship.position.x &&
-        projectile.position.x < ship.position.x + ship.width &&
-        projectile.position.y > ship.position.y &&
-        projectile.position.y < ship.position.y + ship.height
-    );
+    const shipLives = ship.getShipLives()
+
+    for(let i = 0; i < shipLives; i++){
+        lives.push(new Live({
+            width: 100,
+            height: 100,
+            position: {
+                x: 50 * i + 50,
+                y: 15
+            }
+        }))
+    }
+
+    console.log(lives)
+
+    lives.forEach(live => {
+        live.draw()
+    })
 }
 
-initializeStars();
+
 
 //game looop
 function draw() {
@@ -170,8 +185,14 @@ function draw() {
 
     ctx.save();
 
+    updateLives()
+
     updateStars()
     drawStars();
+
+
+
+
 
     //ship
     ship.updateShip();
@@ -186,12 +207,7 @@ function draw() {
         });
 
         projectTiles.forEach((projectile, projectileIndex) => {
-            if (
-                projectile.position.x >= invader.position.x &&
-                projectile.position.x <= invader.position.x + invader.width &&
-                projectile.position.y >= invader.position.y &&
-                projectile.position.y <= invader.position.y + invader.height
-            ) {
+            if (isProjectTileCollidingWithInvader(projectile, invader)) {
                 setTimeout(() => {
                     invaders.invaders.splice(invaderIndex, 1);
                     projectTiles.splice(projectileIndex, 1);
@@ -206,8 +222,9 @@ function draw() {
     })
 
     invadersProjectTile.forEach((projectile, index) => {
-        if (isColliding(projectile, ship)) {
+        if (isProjectTileCollidingWithShip(projectile, ship)) {
             removeProjectile(invadersProjectTile, index)
+            ship.destory()
         }
 
         projectile.update();
@@ -217,7 +234,6 @@ function draw() {
     if(invaders.invaders.length <= 0){
         clearInterval(invadersShootingInterval)
     }
-
 }
 
 

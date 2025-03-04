@@ -1,5 +1,5 @@
 import ShipImagePng from "./assets/ship.png";
-import {ctx, ship} from "./main.js";
+import {ctx} from "./main.js";
 
 export class Ship {
   /**
@@ -13,12 +13,17 @@ export class Ship {
     this.width = width;
     this.height = height;
     this.position = position
+    this.lives = 5
 
     this.rotation = 0;
     this.velocity = velocity
     this.image = new Image();
 
     this.addImageUrl(ShipImagePng);
+  }
+
+  getShipLives(){
+    return this.lives
   }
 
   addImageUrl(imageUrl) {
@@ -32,6 +37,11 @@ export class Ship {
       this. draw()
     };
   }
+
+  destory(){
+    this.lives = this.lives - 1
+  }
+
 
   draw(){
     if (this.image) {
