@@ -18,6 +18,7 @@ import {keyPressedMap, updateKeyState, updateShipPosition} from "./controls.js";
 import {InvaderProjectTile} from "./InvaderProjectTile.js";
 import {getRandomArrElement, removeProjectile} from "./helpers/helpers.js";
 import ProjectTileInvaderImagePng from './assets/projecttile-invader.png'
+import {drawStars, initializeStars, updateStars} from "./stars.js";
 
 
 export const isAutoShotMode = MODE === availableShootingModes.AUTO
@@ -31,6 +32,7 @@ export const canvasHeight = window.innerHeight
 
 canvas.width = canvasWidth;
 canvas.height = canvasHeight;
+
 
 // SHIP -----------------
 
@@ -145,6 +147,8 @@ window.addEventListener('keydown', event => {
 
 window.addEventListener('keyup', event => updateKeyState(event, false));
 
+
+
 function isColliding(projectile, ship) {
     return (
         projectile.position.x + projectile.width > ship.position.x &&
@@ -154,14 +158,20 @@ function isColliding(projectile, ship) {
     );
 }
 
-
-
+initializeStars();
 
 //game looop
 function draw() {
     window.requestAnimationFrame(draw);
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
     ctx.save();
+
+    updateStars()
+    drawStars();
 
     //ship
     ship.updateShip();
