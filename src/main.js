@@ -166,14 +166,10 @@ const updateLives = () => {
         }))
     }
 
-    console.log(lives)
-
     lives.forEach(live => {
         live.draw()
     })
 }
-
-
 
 //game looop
 function draw() {
@@ -189,10 +185,6 @@ function draw() {
 
     updateStars()
     drawStars();
-
-
-
-
 
     //ship
     ship.updateShip();

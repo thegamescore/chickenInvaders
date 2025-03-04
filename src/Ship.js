@@ -40,8 +40,24 @@ export class Ship {
 
   destory(){
     this.lives = this.lives - 1
+
+
+      this.startFlashing();
+
   }
 
+  startFlashing() {
+    let flashCount = 0;
+    const flashInterval = setInterval(() => {
+      this.isFlashing = !this.isFlashing;
+      flashCount++;
+
+      if (flashCount > 5) {
+        clearInterval(flashInterval);
+        this.isFlashing = false;
+      }
+    }, 100);
+  }
 
   draw(){
     if (this.image) {
@@ -53,13 +69,12 @@ export class Ship {
       ctx.translate(-this.position.x  - this.width / 2, -this.position.y - this.height / 2)
       //***
 
-      ctx.drawImage(
-          this.image,
-          this.position.x,
-          this.position.y,
-          this.width,
-          this.height,
-      )
+      ctx.drawImage(this.image, this.position.x, this.position.y, this.width, this.height);
+
+      if (this.isFlashing) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'; // Red overlay with transparency
+        ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+      }
 
       ctx.restore()
     }
