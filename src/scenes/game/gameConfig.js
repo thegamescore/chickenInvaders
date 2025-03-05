@@ -1,5 +1,5 @@
 //GAME CONFIG SETTINGS
-import {availableShootingModes} from "./utils/const.js";
+import {availableShootingModes} from "../../utils/const.js";
 
 export const MODE = availableShootingModes.KEY_PRESS
 

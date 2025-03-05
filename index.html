@@ -6,9 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chicken Invaders</title>
     <link rel="stylesheet" href="./src/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   </head>
   <body>
-    <canvas id="chicken-invaders-canvas"></canvas>
-    <script type="module" src="/src/main.js"></script>
+    <div id="start-screen" >
+      <div class="start-screen-content">
+        <h1>Chicken Invaders</h1>
+        <div>
+          This is example description of company
+        </div>
+        <button id="start-button" class="start-button" >Start Game</button>
+      </div>
+    </div>
+    <canvas id="chicken-invaders-canvas" class="chicken-invaders-canvas"></canvas>
+    <script type="module" src="./src/scenes/game/main.js"></script>
+    <script  src="./src/scenes/startScreen/script.js"></script>
   </body>
 </html>

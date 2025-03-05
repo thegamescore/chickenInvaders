@@ -1,5 +1,5 @@
 import {ctx} from "./main.js";
-import HeartImagePng from "./assets/heart.png";
+import HeartImagePng from "../../assets/heart.png";
 
 export class Live {
     /**

@@ -10,14 +10,14 @@ import {
     SHIP_WIDTH
 } from "./gameConfig.js";
 import {Projectile} from "./Projectile.js";
-import {availableShootingModes, keyMap} from "./utils/const.js";
+import {availableShootingModes, keyMap} from "../../utils/const.js";
 
 import {Invaders} from "./Invaders.js";
 import {keyPressedMap, updateKeyState, updateShipPosition} from "./controls.js";
 
 import {InvaderProjectTile} from "./InvaderProjectTile.js";
-import {getRandomArrElement, removeProjectile} from "./helpers/helpers.js";
-import ProjectTileInvaderImagePng from './assets/projecttile-invader.png'
+import {getRandomArrElement, removeProjectile} from "../../helpers/helpers.js";
+import ProjectTileInvaderImagePng from '../../assets/projecttile-invader.png'
 import {drawStars, initializeStars, updateStars} from "./stars.js";
 import {isProjectTileCollidingWithInvader, isProjectTileCollidingWithShip} from "./collisions.js";
 import {Live} from "./Live.js";
@@ -180,7 +180,7 @@ function draw() {
 
 
     ctx.save();
-
+    
     updateLives()
 
     updateStars()
@@ -216,7 +216,7 @@ function draw() {
     invadersProjectTile.forEach((projectile, index) => {
         if (isProjectTileCollidingWithShip(projectile, ship)) {
             removeProjectile(invadersProjectTile, index)
-            ship.destory()
+            ship.destroy()
         }
 
         projectile.update();

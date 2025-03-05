@@ -12,3 +12,66 @@ body {
 canvas {
   display: block;
 }
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: 'Press Start 2P', cursive;
+  background: black;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
+  text-align: center;
+}
+
+.start-screen-hidden {
+  display: none;
+}
+
+.chicken-invaders-canvas {
+  display: none;
+}
+
+.chicken-invaders-visible {
+  display: block;
+}
+
+.start-screen-content {
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+}
+
+h1 {
+  font-size: 2rem;
+  text-shadow: 3px 3px 5px rgba(255, 255, 255, 0.5);
+}
+
+.start-button {
+  background: yellow;
+  color: black;
+  font-size: 1.2rem;
+  padding: 15px 30px;
+  border: 4px solid black;
+  cursor: pointer;
+  border-radius: 0;
+  transition: 0.3s;
+  font-family: 'Press Start 2P', cursive;
+  text-transform: uppercase;
+  position: relative;
+  box-shadow: 4px 4px black;
+}
+.start-button:hover {
+  background: orange;
+  box-shadow: 6px 6px black;
+}
+.start-button:active {
+  box-shadow: 2px 2px black;
+  transform: translate(2px, 2px);
+}

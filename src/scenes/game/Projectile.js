@@ -1,5 +1,5 @@
 import {ctx} from "./main.js";
-import ProjectileImagePng from "./assets/projectile.png";
+import ProjectileImagePng from "../../assets/projectile.png";
 
 export class Projectile {
     /**

@@ -1,4 +1,4 @@
-import InvaderPng from "./assets/invader.png";
+import InvaderPng from "../../assets/invader.png";
 import {ctx} from "./main.js";
 
 export class Invader {

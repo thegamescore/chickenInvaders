@@ -1,4 +1,4 @@
-import ShipImagePng from "./assets/ship.png";
+import ShipImagePng from "../../assets/ship.png";
 import {ctx} from "./main.js";
 
 export class Ship {
@@ -18,6 +18,7 @@ export class Ship {
     this.rotation = 0;
     this.velocity = velocity
     this.image = new Image();
+    this.isFlashing = false
 
     this.addImageUrl(ShipImagePng);
   }
@@ -38,12 +39,10 @@ export class Ship {
     };
   }
 
-  destory(){
+  destroy(){
     this.lives = this.lives - 1
 
-
-      this.startFlashing();
-
+    this.startFlashing();
   }
 
   startFlashing() {

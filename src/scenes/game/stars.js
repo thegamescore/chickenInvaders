@@ -1,5 +1,5 @@
 import {canvas, ctx} from "./main.js";
-import {getRandomArrElement} from "./helpers/helpers.js";
+import {getRandomArrElement} from "../../helpers/helpers.js";
 
 const stars = [];
 const maxStars = 50;
