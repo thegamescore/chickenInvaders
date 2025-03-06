@@ -1,5 +1,5 @@
 import ShipImagePng from "../../../assets/ship.png";
-import {ctx} from "../canvas.js";
+import { ctx } from "../canvas.js";
 
 export class Ship {
   /**
@@ -12,19 +12,19 @@ export class Ship {
   constructor({ width, height, position, velocity }) {
     this.width = width;
     this.height = height;
-    this.position = position
-    this.lives = 5
+    this.position = position;
+    this.lives = 5;
 
     this.rotation = 0;
-    this.velocity = velocity
+    this.velocity = velocity;
     this.image = new Image();
-    this.isFlashing = false
+    this.isFlashing = false;
 
     this.addImageUrl(ShipImagePng);
   }
 
-  getShipLives(){
-    return this.lives
+  getShipLives() {
+    return this.lives;
   }
 
   addImageUrl(imageUrl) {
@@ -35,12 +35,12 @@ export class Ship {
 
   initializeShip() {
     this.image.onload = () => {
-      this. draw()
+      this.draw();
     };
   }
 
-  destroy(){
-    this.lives = this.lives - 1
+  destroy() {
+    this.lives = this.lives - 1;
 
     this.startFlashing();
   }
@@ -58,38 +58,50 @@ export class Ship {
     }, 100);
   }
 
-  draw(){
+  draw() {
     if (this.image) {
-      ctx.save()
+      ctx.save();
 
       //*****rotation on turning left/right
-      ctx.translate(this.position.x + this.width / 2, this.position.y + this.height / 2);
-      ctx.rotate(this.rotation)
-      ctx.translate(-this.position.x  - this.width / 2, -this.position.y - this.height / 2)
+      ctx.translate(
+        this.position.x + this.width / 2,
+        this.position.y + this.height / 2,
+      );
+      ctx.rotate(this.rotation);
+      ctx.translate(
+        -this.position.x - this.width / 2,
+        -this.position.y - this.height / 2,
+      );
       //***
 
-      ctx.drawImage(this.image, this.position.x, this.position.y, this.width, this.height);
+      ctx.drawImage(
+        this.image,
+        this.position.x,
+        this.position.y,
+        this.width,
+        this.height,
+      );
 
       if (this.isFlashing) {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'; // Red overlay with transparency
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)"; // Red overlay with transparency
         ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
       }
 
-      ctx.restore()
+      ctx.restore();
     }
   }
 
-  resetShip(){
+  resetShip() {
     this.velocity = {
       x: 0,
-      y: 0
-    }
-    this.rotation = 0
+      y: 0,
+    };
+    this.rotation = 0;
   }
 
-  updateShip(){
-    this.draw()
-    this.position.x += this.velocity.x
-    this.position.y += this.velocity.y
+  updateShip() {
+    this.draw();
+    this.position.x += this.velocity.x;
+    this.position.y += this.velocity.y;
   }
 }

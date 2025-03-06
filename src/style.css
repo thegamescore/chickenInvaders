@@ -19,7 +19,7 @@ canvas {
   box-sizing: border-box;
 }
 body {
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   background: black;
   color: white;
   display: flex;
@@ -62,7 +62,7 @@ h1 {
   cursor: pointer;
   border-radius: 0;
   transition: 0.3s;
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   text-transform: uppercase;
   position: relative;
   box-shadow: 4px 4px black;
