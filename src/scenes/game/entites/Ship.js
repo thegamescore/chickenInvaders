@@ -1,5 +1,5 @@
-import ShipImagePng from "../../assets/ship.png";
-import {ctx} from "./main.js";
+import ShipImagePng from "../../../assets/ship.png";
+import {ctx} from "../canvas.js";
 
 export class Ship {
   /**

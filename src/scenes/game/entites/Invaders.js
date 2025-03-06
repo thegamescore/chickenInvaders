@@ -1,6 +1,6 @@
 import {Invader} from "./Invader.js";
-import {INVADER_HEIGHT, INVADER_WIDTH, INVADERS_GAP_X, INVADERS_GAP_Y, INVADERS_VELOCITY} from "./gameConfig.js";
-import {canvas, canvasWidth} from "./main.js";
+import {INVADER_HEIGHT, INVADER_WIDTH, INVADERS_GAP_X, INVADERS_GAP_Y, INVADERS_VELOCITY} from "../utils/gameConfig.js";
+import {canvasWidth} from "../canvas.js";
 
 export class Invaders {
     constructor() {

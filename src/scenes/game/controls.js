@@ -1,6 +1,7 @@
 import {keyMap} from "../../utils/const.js";
-import {canvasWidth, ship} from "./main.js";
-import {ROTATION_ANGLE, SHIP_VELOCITY, SHIP_WIDTH} from "./gameConfig.js";
+
+import {ROTATION_ANGLE, SHIP_VELOCITY, SHIP_WIDTH} from "./utils/gameConfig.js";
+import {canvasWidth} from "./canvas.js";
 
 /** @type {Record<string, boolean>} */
 export const keyPressedMap = Object.fromEntries(
@@ -15,7 +16,7 @@ export const updateKeyState = (event, isPressed) => {
     }
 };
 
-export function  updateShipPosition(){
+export function  updateShipPosition(ship){
     if(keyPressedMap["TURN_LEFT"]){
         //prevent ship from overlapping map
         if(ship.position.x <= 0){

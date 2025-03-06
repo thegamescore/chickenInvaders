@@ -1,27 +1,24 @@
-import {ctx} from "./main.js";
-import ProjectileImagePng from "../../assets/projectile.png";
+import HeartImagePng from "../../../assets/heart.png";
+import {ctx} from "../canvas.js";
 
-export class Projectile {
+export class Live {
     /**
      * Creates an instance of Projectile.
      * @param {{ x: number, y: number }} position - The position of the projectile.
-     * @param {{ x: number, y: number }} velocity - The velocity of the projectile.
      * @param {number} width - The width of the projectile.
      * @param {number} height - The height of the projectile.
      */
     constructor({
                     position,
-                    velocity,
                     width,
                     height
                 }) {
         this.position = position;
         this.image = new Image();
-        this.velocity = velocity;
         this.width = width;
         this.height = height
 
-        this.addImageUrl(ProjectileImagePng)
+        this.addImageUrl(HeartImagePng)
     }
 
     addImageUrl(imageUrl) {
@@ -44,11 +41,5 @@ export class Projectile {
         )
 
         ctx.restore()
-    }
-
-    update(){
-        this.draw()
-
-        this.position.y -= this.velocity.y
     }
 }

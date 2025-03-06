@@ -1,4 +1,4 @@
-import {Ship} from "./Ship.js";
+import {Ship} from "./entites/Ship.js";
 import {
     INTERVAL_BETWEEN_SHOOTING_IN_MS,
     INVADER_HEIGHT,
@@ -8,32 +8,23 @@ import {
     PROJECT_TILE_SPEED,
     SHIP_HEIGHT,
     SHIP_WIDTH
-} from "./gameConfig.js";
-import {Projectile} from "./Projectile.js";
+} from "./utils/gameConfig.js";
+import {Projectile} from "./entites/Projectile.js";
 import {availableShootingModes, keyMap} from "../../utils/const.js";
 
-import {Invaders} from "./Invaders.js";
+import {Invaders} from "./entites/Invaders.js";
 import {keyPressedMap, updateKeyState, updateShipPosition} from "./controls.js";
 
-import {InvaderProjectTile} from "./InvaderProjectTile.js";
+import {InvaderProjectTile} from "./entites/InvaderProjectTile.js";
 import {getRandomArrElement, removeProjectile} from "../../helpers/helpers.js";
 import ProjectTileInvaderImagePng from '../../assets/projecttile-invader.png'
 import {drawStars, initializeStars, updateStars} from "./stars.js";
 import {isProjectTileCollidingWithInvader, isProjectTileCollidingWithShip} from "./collisions.js";
-import {Live} from "./Live.js";
-
+import {Live} from "./entites/Live.js";
+import {canvas, canvasHeight, canvasWidth, ctx} from "./canvas.js";
 
 export const isAutoShotMode = MODE === availableShootingModes.AUTO
 export const isKeyPressMode = MODE === availableShootingModes.KEY_PRESS
-
-export const canvas = document.getElementById("chicken-invaders-canvas");
-export const ctx = canvas.getContext("2d");
-
-export const canvasWidth = window.innerWidth
-export const canvasHeight = window.innerHeight
-
-canvas.width = canvasWidth;
-canvas.height = canvasHeight;
 
 
 // SHIP -----------------
@@ -55,6 +46,7 @@ ship.initializeShip();
 
 
 const invaders = new Invaders()
+
 invaders.initialize(
     {
         numberOfInvaders: 40, gridSize: 10
@@ -188,7 +180,7 @@ function draw() {
 
     //ship
     ship.updateShip();
-    updateShipPosition()
+    updateShipPosition(ship)
 
     invaders.update()
 
