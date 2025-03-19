@@ -36,7 +36,8 @@ import {
 } from "./collisions.js";
 
 import { canvas, canvasHeight, canvasWidth, ctx } from "./canvas.js";
-import {gameStartEventName} from "../../events.js";
+import {gameStartEventName, pauseGame, unpauseGameEventName} from "../../events.js";
+import {GameStateManager} from "./gameStateMangager.js";
 
 // ------------------- CONSTANTS & INITIALIZATION -------------------
 
@@ -73,8 +74,6 @@ const appendProjectTile = () => {
 };
 
 const appendInvaderProjectTile = () => {
-  console.log("APPEND")
-
   const randomInvader = getRandomArrElement(invaders.invaders);
   if (!randomInvader) return;
 
@@ -104,8 +103,6 @@ let invadersShootingIntervalId;
 const startInvadersShootingInterval = () => {
   invadersShootingIntervalId = setInterval(appendInvaderProjectTile, 1000);
 }
-
-startInvadersShootingInterval()
 
 const stopInvaderShootingInterval = () => {
   clearInterval(invadersShootingIntervalId);
@@ -152,46 +149,23 @@ const updateLives = () => {
 
 // ------------------- GAME LOOP -------------------
 
-class GameStateManager {
-  constructor() {
-    this.state = gameStates.IDLE;
-    this.listeners = new Set();
-  }
-
-  getState() {
-    return this.state;
-  }
-
-  setState(newState) {
-    console.log(newState)
-
-    if (this.state !== newState) {
-      this.state = newState;
-      this.notifyListeners();
-    }
-  }
-
-  onChange(listener) {
-    this.listeners.add(listener);
-  }
-
-  offChange(listener) {
-    this.listeners.delete(listener);
-  }
-
-  notifyListeners() {
-    this.listeners.forEach(listener => listener(this.state));
-  }
-}
-
 const gameStateManager = new GameStateManager();
 
 gameStateManager.onChange((newState) => {
-  if (newState === gameStates.PAUSED || newState === gameStates.GAME_OVER) {
+  if(newState === gameStates.RUNNING){
+    startInvadersShootingInterval()
+  }
+
+  if (newState === gameStates.PAUSED) {
+    stopInvaderShootingInterval();
+    pauseGame()
+  }
+
+  if(newState === gameStates.GAME_OVER){
     stopInvaderShootingInterval();
   }
-});
 
+});
 
 function draw() {
   let GAME_STATE = gameStateManager.getState()
@@ -244,21 +218,25 @@ function draw() {
     }
     projectile.update();
   });
-
-
 }
 
 draw()
 
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
-    gameStateManager.setState(gameStates.PAUSED)
-  } else {
-    gameStateManager.setState(gameStates.RUNNING)
+    const gameState = gameStateManager.getState()
+
+    if(gameState === gameStates.RUNNING){
+      gameStateManager.setState(gameStates.PAUSED)
+    }
   }
 });
 
 window.addEventListener(gameStartEventName, () => {
+  gameStateManager.setState(gameStates.RUNNING)
+})
+
+window.addEventListener(unpauseGameEventName, () => {
   gameStateManager.setState(gameStates.RUNNING)
 })
 
