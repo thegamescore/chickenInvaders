@@ -6,7 +6,7 @@ const chickenInvadersCanvas = document.getElementById(
 );
 const startScreenWrapper = document.getElementById("start-screen");
 
-window.addEventListener("load", (event) => {
+window.addEventListener("load", () => {
   startButton.focus();
 });
 

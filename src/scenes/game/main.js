@@ -37,7 +37,7 @@ import {
 
 import { canvas, canvasHeight, canvasWidth, ctx } from "./canvas.js";
 import {gameStartEventName, pauseGame, unpauseGameEventName} from "../../events.js";
-import {GameStateManager} from "./gameStateMangager.js";
+import {GameStateManager} from "./gameStateManager.js";
 
 // ------------------- CONSTANTS & INITIALIZATION -------------------
 
