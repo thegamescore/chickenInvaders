@@ -10,3 +10,10 @@ export const keyMap = {
   TURN_UP: "ArrowUp",
   SHOT: "Space",
 };
+
+export const gameStates = {
+  RUNNING: "RUNNING",
+  GAME_OVER: "GAME_OVER",
+  IDLE: "IDLE",
+  PAUSED: "PAUSED"
+}

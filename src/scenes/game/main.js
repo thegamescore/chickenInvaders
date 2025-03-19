@@ -15,7 +15,7 @@ import {
   SHIP_WIDTH,
 } from "./utils/gameConfig.js";
 
-import { availableShootingModes, keyMap } from "../../utils/const.js";
+import {availableShootingModes, gameStates, keyMap} from "../../utils/const.js";
 import {
   keyPressedMap,
   updateKeyState,
@@ -36,6 +36,7 @@ import {
 } from "./collisions.js";
 
 import { canvas, canvasHeight, canvasWidth, ctx } from "./canvas.js";
+import {gameStartEventName} from "../../events.js";
 
 // ------------------- CONSTANTS & INITIALIZATION -------------------
 
@@ -72,6 +73,8 @@ const appendProjectTile = () => {
 };
 
 const appendInvaderProjectTile = () => {
+  console.log("APPEND")
+
   const randomInvader = getRandomArrElement(invaders.invaders);
   if (!randomInvader) return;
 
@@ -96,7 +99,18 @@ if (isAutoShotMode) {
   setInterval(appendProjectTile, INTERVAL_BETWEEN_SHOOTING_IN_MS);
 }
 
-const invadersShootingInterval = setInterval(appendInvaderProjectTile, 1000);
+let invadersShootingIntervalId;
+
+const startInvadersShootingInterval = () => {
+  invadersShootingIntervalId = setInterval(appendInvaderProjectTile, 1000);
+}
+
+startInvadersShootingInterval()
+
+const stopInvaderShootingInterval = () => {
+  clearInterval(invadersShootingIntervalId);
+}
+
 
 window.addEventListener("keydown", (event) => {
   if (isKeyPressMode && event.code === keyMap.SHOT && !keyPressedMap["SHOT"]) {
@@ -131,17 +145,73 @@ const updateLives = () => {
   );
 
   lives.forEach((live) => live.draw());
+
+
+  return lives.length
 };
 
 // ------------------- GAME LOOP -------------------
 
+class GameStateManager {
+  constructor() {
+    this.state = gameStates.IDLE;
+    this.listeners = new Set();
+  }
+
+  getState() {
+    return this.state;
+  }
+
+  setState(newState) {
+    console.log(newState)
+
+    if (this.state !== newState) {
+      this.state = newState;
+      this.notifyListeners();
+    }
+  }
+
+  onChange(listener) {
+    this.listeners.add(listener);
+  }
+
+  offChange(listener) {
+    this.listeners.delete(listener);
+  }
+
+  notifyListeners() {
+    this.listeners.forEach(listener => listener(this.state));
+  }
+}
+
+const gameStateManager = new GameStateManager();
+
+gameStateManager.onChange((newState) => {
+  if (newState === gameStates.PAUSED || newState === gameStates.GAME_OVER) {
+    stopInvaderShootingInterval();
+  }
+});
+
+
 function draw() {
+  let GAME_STATE = gameStateManager.getState()
+
   requestAnimationFrame(draw);
+
+  if(GAME_STATE !== gameStates.RUNNING){
+    return
+  }
+
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  updateLives();
+  const numberOfLives = updateLives();
+
+  if(numberOfLives <= 0){
+    gameStateManager.setState(gameStates.GAME_OVER)
+  }
+
   updateStars();
   drawStars();
 
@@ -175,9 +245,21 @@ function draw() {
     projectile.update();
   });
 
-  if (invaders.invaders.length === 0) {
-    clearInterval(invadersShootingInterval);
-  }
+
 }
 
-draw();
+draw()
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    gameStateManager.setState(gameStates.PAUSED)
+  } else {
+    gameStateManager.setState(gameStates.RUNNING)
+  }
+});
+
+window.addEventListener(gameStartEventName, () => {
+  gameStateManager.setState(gameStates.RUNNING)
+})
+
+

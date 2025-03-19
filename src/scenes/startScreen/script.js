@@ -1,3 +1,5 @@
+import {startGameEvent} from "../../events.js";
+
 const startButton = document.getElementById("start-button");
 const chickenInvadersCanvas = document.getElementById(
   "chicken-invaders-canvas",
@@ -11,4 +13,6 @@ window.addEventListener("load", (event) => {
 startButton.addEventListener("click", () => {
   chickenInvadersCanvas.classList.add("chicken-invaders-visible");
   startScreenWrapper.classList.add("start-screen-hidden");
+
+  startGameEvent()
 });
