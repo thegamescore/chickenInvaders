@@ -15,7 +15,7 @@ import {
   SHIP_WIDTH,
 } from "./utils/gameConfig.js";
 
-import {availableShootingModes, gameStates, keyMap} from "../../utils/const.js";
+import {availableShootingModes, gameStates, keyMap, pointEvents} from "../../utils/const.js";
 import {
   keyPressedMap,
   updateKeyState,
@@ -38,6 +38,9 @@ import {
 import { canvas, canvasHeight, canvasWidth, ctx } from "./canvas.js";
 import {gameStartEventName, pauseGame, unpauseGameEventName} from "../../events.js";
 import {GameStateManager} from "./gameStateManager.js";
+import {Points} from "./entites/Points.js";
+
+
 
 // ------------------- CONSTANTS & INITIALIZATION -------------------
 
@@ -49,6 +52,10 @@ const ship = new Ship({
   height: SHIP_HEIGHT,
   position: { x: canvas.width / 2, y: canvas.height - 150 },
   velocity: { x: 0, y: 0 },
+});
+
+const points = new Points({
+  [pointEvents.KILL_PROJECTILE]: 5
 });
 
 const invaders = new Invaders();
@@ -189,6 +196,8 @@ function draw() {
   updateStars();
   drawStars();
 
+  points.drawPoints(ctx, canvasWidth)
+
   ship.updateShip();
   updateShipPosition(ship);
   invaders.update();
@@ -198,6 +207,9 @@ function draw() {
 
     projectTiles.forEach((projectile, projectileIndex) => {
       if (isProjectTileCollidingWithInvader(projectile, invader)) {
+
+        points.updatePoints(pointEvents.KILL_PROJECTILE)
+
         setTimeout(() => {
           invaders.invaders.splice(invaderIndex, 1);
           projectTiles.splice(projectileIndex, 1);

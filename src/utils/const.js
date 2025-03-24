@@ -17,3 +17,7 @@ export const gameStates = {
   IDLE: "IDLE",
   PAUSED: "PAUSED"
 }
+
+export const pointEvents = {
+  KILL_PROJECTILE: "KILL_PROJECTILE",
+}
