@@ -1,7 +1,7 @@
 //GAME CONFIG SETTINGS
 import { availableShootingModes } from "../../../utils/const.js";
 
-export const MODE = availableShootingModes.KEY_PRESS;
+export const MODE = availableShootingModes.AUTO;
 
 //GAME ASSET SETTINGS
 export const SHIP_WIDTH = 50;

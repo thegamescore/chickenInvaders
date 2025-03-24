@@ -1,5 +1,5 @@
 import ShipImagePng from "../../../assets/ship.png";
-import { ctx } from "../canvas.js";
+import { canvas, ctx } from "../canvas.js";
 
 export class Ship {
   /**
@@ -9,11 +9,11 @@ export class Ship {
    * @param {number} width - The width of the projectile.
    * @param {number} height - The height of the projectile.
    */
-  constructor({ width, height, position, velocity }) {
+  constructor({ width, height, position, velocity, numberOfLives }) {
     this.width = width;
     this.height = height;
     this.position = position;
-    this.lives = 5;
+    this.lives = numberOfLives;
 
     this.rotation = 0;
     this.velocity = velocity;
@@ -96,7 +96,12 @@ export class Ship {
       x: 0,
       y: 0,
     };
+
     this.rotation = 0;
+  }
+
+  resetShipPosition() {
+    this.position = { x: canvas.width / 2, y: canvas.height - 150 };
   }
 
   updateShip() {

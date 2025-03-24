@@ -45,14 +45,12 @@ export function updateStars() {
 
 export function drawStars() {
   stars.forEach((star) => {
-
     const { r, g, b } = star.color;
 
     ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${star.opacity})`;
     ctx.beginPath();
     ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
     ctx.fill();
-    ctx.restore()
-
+    ctx.restore();
   });
 }

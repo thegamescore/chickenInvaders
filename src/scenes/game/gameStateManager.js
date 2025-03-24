@@ -1,27 +1,45 @@
-import {gameStates} from "../../utils/const.js";
+import { gameStates, MAX_LEVEL_REACHED } from "../../utils/const.js";
 
 export class GameStateManager {
-    constructor() {
-        this.state = gameStates.IDLE;
-        this.listeners = new Set();
+  constructor({ maxLevel }) {
+    this.state = gameStates.IDLE;
+    this.currentLevel = 0;
+    this.listeners = new Set();
+    this.maxLevel = maxLevel;
+  }
+
+  getState() {
+    return this.state;
+  }
+
+  getCurrentLevel() {
+    if (this.currentLevel === this.maxLevel) {
+      return MAX_LEVEL_REACHED;
     }
 
-    getState() {
-        return this.state;
+    return this.currentLevel;
+  }
+
+  updateCurrentLevel() {
+    if (this.currentLevel === this.maxLevel) {
+      return MAX_LEVEL_REACHED;
     }
 
-    setState(newState) {
-        if (this.state !== newState) {
-            this.state = newState;
-            this.notifyListeners();
-        }
-    }
+    this.currentLevel += 1;
+  }
 
-    onChange(listener) {
-        this.listeners.add(listener);
+  setState(newState) {
+    if (this.state !== newState) {
+      this.state = newState;
+      this.notifyListeners();
     }
+  }
 
-    notifyListeners() {
-        this.listeners.forEach(listener => listener(this.state));
-    }
+  onChange(listener) {
+    this.listeners.add(listener);
+  }
+
+  notifyListeners() {
+    this.listeners.forEach((listener) => listener(this.state));
+  }
 }

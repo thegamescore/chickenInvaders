@@ -15,7 +15,13 @@ import {
   SHIP_WIDTH,
 } from "./utils/gameConfig.js";
 
-import {availableShootingModes, gameStates, keyMap, pointEvents} from "../../utils/const.js";
+import {
+  availableShootingModes,
+  gameStates,
+  keyMap,
+  MAX_LEVEL_REACHED,
+  pointEvents,
+} from "../../utils/const.js";
 import {
   keyPressedMap,
   updateKeyState,
@@ -23,6 +29,8 @@ import {
 } from "./controls.js";
 
 import {
+  assert,
+  delay,
   getRandomArrElement,
   removeProjectile,
 } from "../../helpers/helpers.js";
@@ -36,36 +44,51 @@ import {
 } from "./collisions.js";
 
 import { canvas, canvasHeight, canvasWidth, ctx } from "./canvas.js";
-import {gameStartEventName, pauseGame, unpauseGameEventName} from "../../events.js";
-import {GameStateManager} from "./gameStateManager.js";
-import {Points} from "./entites/Points.js";
-
-
+import {
+  dispatchLevelTransition,
+  gameStartEventName,
+  pauseGame,
+  unpauseGameEventName,
+} from "../../events.js";
+import { GameStateManager } from "./gameStateManager.js";
+import { Points } from "./entites/Points.js";
 
 // ------------------- CONSTANTS & INITIALIZATION -------------------
 
 const isAutoShotMode = MODE === availableShootingModes.AUTO;
 const isKeyPressMode = MODE === availableShootingModes.KEY_PRESS;
 
+const projectTiles = [];
+const invadersProjectTile = [];
+
+const cleanUpProject = () => {
+  projectTiles.length = 0;
+  invadersProjectTile.length = 0;
+};
+
+const points = new Points({
+  [pointEvents.KILL_PROJECTILE]: 5,
+});
+
 const ship = new Ship({
   width: SHIP_WIDTH,
   height: SHIP_HEIGHT,
   position: { x: canvas.width / 2, y: canvas.height - 150 },
   velocity: { x: 0, y: 0 },
-});
-
-const points = new Points({
-  [pointEvents.KILL_PROJECTILE]: 5
+  numberOfLives: 1,
 });
 
 const invaders = new Invaders();
-invaders.initialize({ numberOfInvaders: 40, gridSize: 10 });
 
-const projectTiles = [];
-const invadersProjectTile = [];
+const initializeGame = ({ numberOfInvaders }) => {
+  invaders.initialize({ numberOfInvaders, gridSize: 10 });
+  ship.initializeShip();
+  initializeStars();
+};
 
-ship.initializeShip();
-initializeStars();
+initializeGame({
+  numberOfInvaders: 1,
+});
 
 // ------------------- PROJECTILE HANDLING -------------------
 
@@ -82,6 +105,7 @@ const appendProjectTile = () => {
 
 const appendInvaderProjectTile = () => {
   const randomInvader = getRandomArrElement(invaders.invaders);
+
   if (!randomInvader) return;
 
   invadersProjectTile.push(
@@ -109,12 +133,11 @@ let invadersShootingIntervalId;
 
 const startInvadersShootingInterval = () => {
   invadersShootingIntervalId = setInterval(appendInvaderProjectTile, 1000);
-}
+};
 
 const stopInvaderShootingInterval = () => {
   clearInterval(invadersShootingIntervalId);
-}
-
+};
 
 window.addEventListener("keydown", (event) => {
   if (isKeyPressMode && event.code === keyMap.SHOT && !keyPressedMap["SHOT"]) {
@@ -150,68 +173,128 @@ const updateLives = () => {
 
   lives.forEach((live) => live.draw());
 
-
-  return lives.length
+  return lives.length;
 };
 
 // ------------------- GAME LOOP -------------------
 
-const gameStateManager = new GameStateManager();
+const gameStateManager = new GameStateManager({
+  maxLevel: 5,
+});
+
+const LEVEL_TRANSITION_DELAY_MS = 2000;
+
+const LEVELS = {
+  1: {
+    numberOfInvaders: 2,
+    gridSize: 25,
+  },
+  2: {
+    numberOfInvaders: 3,
+    gridSize: 25,
+  },
+  3: {
+    numberOfInvaders: 4,
+    gridSize: 25,
+  },
+};
+
+const startLevelTransition = async () => {
+  gameStateManager.updateCurrentLevel();
+  const currentLevel = gameStateManager.getCurrentLevel();
+
+  if (currentLevel === MAX_LEVEL_REACHED) {
+    gameStateManager.setState(gameStates.WIN);
+    return;
+  }
+
+  assert(LEVELS[currentLevel], "Current level not specified");
+
+  dispatchLevelTransition(currentLevel);
+
+  const levelData = LEVELS[currentLevel];
+
+  ship.resetShipPosition();
+
+  invaders.initialize({
+    numberOfInvaders: levelData.numberOfInvaders,
+    gridSize: levelData.gridSize,
+  });
+
+  cleanUpProject();
+
+  await delay(LEVEL_TRANSITION_DELAY_MS);
+
+  gameStateManager.setState(gameStates.RUNNING);
+};
 
 gameStateManager.onChange((newState) => {
-  if(newState === gameStates.RUNNING){
-    startInvadersShootingInterval()
+  console.log("NEW STATE", newState);
+
+  if (newState === gameStates.RUNNING) {
+    startInvadersShootingInterval();
   }
 
   if (newState === gameStates.PAUSED) {
     stopInvaderShootingInterval();
-    pauseGame()
+    pauseGame();
   }
 
-  if(newState === gameStates.GAME_OVER){
+  if (newState === gameStates.GAME_OVER) {
     stopInvaderShootingInterval();
   }
 
+  if (newState === gameStates.LEVEL_TRANSITION) {
+    startLevelTransition();
+  }
 });
 
 function draw() {
-  let GAME_STATE = gameStateManager.getState()
+  let GAME_STATE = gameStateManager.getState();
 
   requestAnimationFrame(draw);
-
-  if(GAME_STATE !== gameStates.RUNNING){
-    return
-  }
 
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   const numberOfLives = updateLives();
-
-  if(numberOfLives <= 0){
-    gameStateManager.setState(gameStates.GAME_OVER)
-  }
+  const invadersOnScreen = invaders.invaders;
 
   updateStars();
   drawStars();
 
-  points.drawPoints(ctx, canvasWidth)
+  points.drawPoints(ctx, canvasWidth);
 
   ship.updateShip();
   updateShipPosition(ship);
+
+  if (GAME_STATE !== gameStates.RUNNING) {
+    return;
+  }
+
+  if (GAME_STATE !== gameStates.GAME_OVER && numberOfLives <= 0) {
+    gameStateManager.setState(gameStates.GAME_OVER);
+  }
+
+  if (
+    GAME_STATE !== gameStates.LEVEL_TRANSITION &&
+    invadersOnScreen.length <= 0
+  ) {
+    gameStateManager.setState(gameStates.LEVEL_TRANSITION);
+  }
+
   invaders.update();
 
-  invaders.invaders.forEach((invader, invaderIndex) => {
+  invadersOnScreen.forEach((invader, invaderIndex) => {
     invader.updateInvader({ x: invaders.velocity.x, y: invaders.velocity.y });
 
     projectTiles.forEach((projectile, projectileIndex) => {
       if (isProjectTileCollidingWithInvader(projectile, invader)) {
-
-        points.updatePoints(pointEvents.KILL_PROJECTILE)
+        points.updatePoints(pointEvents.KILL_PROJECTILE);
 
         setTimeout(() => {
-          invaders.invaders.splice(invaderIndex, 1);
+          invadersOnScreen.splice(invaderIndex, 1);
           projectTiles.splice(projectileIndex, 1);
         }, 0);
       }
@@ -232,24 +315,22 @@ function draw() {
   });
 }
 
-draw()
+draw();
 
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
-    const gameState = gameStateManager.getState()
+    const gameState = gameStateManager.getState();
 
-    if(gameState === gameStates.RUNNING){
-      gameStateManager.setState(gameStates.PAUSED)
+    if (gameState === gameStates.RUNNING) {
+      gameStateManager.setState(gameStates.PAUSED);
     }
   }
 });
 
 window.addEventListener(gameStartEventName, () => {
-  gameStateManager.setState(gameStates.RUNNING)
-})
+  gameStateManager.setState(gameStates.RUNNING);
+});
 
 window.addEventListener(unpauseGameEventName, () => {
-  gameStateManager.setState(gameStates.RUNNING)
-})
-
-
+  gameStateManager.setState(gameStates.RUNNING);
+});

@@ -15,9 +15,13 @@ export const gameStates = {
   RUNNING: "RUNNING",
   GAME_OVER: "GAME_OVER",
   IDLE: "IDLE",
-  PAUSED: "PAUSED"
-}
+  PAUSED: "PAUSED",
+  LEVEL_TRANSITION: "LEVEL_TRANSITION",
+  WIN: "WIN",
+};
+
+export const MAX_LEVEL_REACHED = "MAX_LEVEL_REACHED";
 
 export const pointEvents = {
   KILL_PROJECTILE: "KILL_PROJECTILE",
-}
+};

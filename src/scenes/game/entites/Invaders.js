@@ -25,6 +25,16 @@ export class Invaders {
     };
   }
 
+  reset() {
+    this.invaders = [];
+
+    this.gridWidth = 0;
+
+    this.position = { x: 0, y: 0 };
+
+    this.velocity = { x: 0, y: 0 };
+  }
+
   create({ numberOfInvaders, gridSize }) {
     this.gridWidth = gridSize * INVADERS_GAP_X;
 
@@ -50,6 +60,8 @@ export class Invaders {
   }
 
   initialize({ numberOfInvaders, gridSize }) {
+    this.reset();
+
     this.create({
       numberOfInvaders,
       gridSize,

@@ -42,6 +42,14 @@ body {
   display: none;
 }
 
+.game-over-screen {
+  position: absolute;
+}
+
+.game-over-screen-hidden {
+  display: none;
+}
+
 .chicken-invaders-canvas {
   display: none;
 }
@@ -54,6 +62,24 @@ body {
   display: flex;
   flex-direction: column;
   gap: 50px;
+}
+
+.level-transition {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  font-family: "Press Start 2P", monospace; /* optional retro look */
+  color: white;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.level-transition-visible {
+  opacity: 1;
 }
 
 h1 {

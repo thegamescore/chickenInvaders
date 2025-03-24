@@ -1,10 +1,13 @@
 export const gameStartEventName = "game-start";
-export const pauseGameEventName = "pause-game"
-export const unpauseGameEventName = "unpause-game"
+export const pauseGameEventName = "pause-game";
+export const unpauseGameEventName = "unpause-game";
+export const gameOverEventName = "game-over";
+export const levelTransitionEventName = "level-transition";
 
 const gameStartEvent = new CustomEvent(gameStartEventName);
-const pauseGameEvent = new CustomEvent(pauseGameEventName)
-const unpauseGameEvent = new CustomEvent(unpauseGameEventName)
+const pauseGameEvent = new CustomEvent(pauseGameEventName);
+const unpauseGameEvent = new CustomEvent(unpauseGameEventName);
+const gameOverEvent = new CustomEvent(gameOverEventName);
 
 export const startGame = () => {
   dispatchEvent(gameStartEvent);
@@ -18,3 +21,16 @@ export const unPauseGame = () => {
   dispatchEvent(unpauseGameEvent);
 };
 
+export const setGameOver = () => {
+  dispatchEvent(gameOverEvent);
+};
+
+export const dispatchLevelTransition = (currentLevel) => {
+  const levelTransitionEvent = new CustomEvent(levelTransitionEventName, {
+    detail: {
+      currentLevel,
+    },
+  });
+
+  dispatchEvent(levelTransitionEvent);
+};
