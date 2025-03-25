@@ -10,17 +10,29 @@ export class Ship {
    * @param {number} height - The height of the projectile.
    */
   constructor({ width, height, position, velocity, numberOfLives }) {
+    this._initialState = structuredClone({ width, height, position, velocity, numberOfLives });
+
+    this._applyState(this._initialState);
+
+    this.isFlashing = false;
+    this.rotation = 0;
+    this.image = new Image();
+    this.addImageUrl(ShipImagePng);
+  }
+
+
+  _applyState({ width, height, position, velocity, numberOfLives }) {
     this.width = width;
     this.height = height;
-    this.position = position;
+    this.position = { ...position };
+    this.velocity = { ...velocity };
     this.lives = numberOfLives;
+  }
 
-    this.rotation = 0;
-    this.velocity = velocity;
-    this.image = new Image();
+  reset() {
+    this._applyState(this._initialState);
     this.isFlashing = false;
-
-    this.addImageUrl(ShipImagePng);
+    this.rotation = 0;
   }
 
   getShipLives() {
@@ -103,6 +115,9 @@ export class Ship {
   resetShipPosition() {
     this.position = { x: canvas.width / 2, y: canvas.height - 150 };
   }
+
+
+
 
   updateShip() {
     this.draw();

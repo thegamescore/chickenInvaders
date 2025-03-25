@@ -49,7 +49,7 @@ import { canvas, canvasHeight, canvasWidth, ctx } from "./canvas.js";
 import {
   dispatchLevelTransition,
   gameStartEventName,
-  pauseGame,
+  pauseGame, retryGameEventName,
   setGameOver,
   unpauseGameEventName,
 } from "../../events.js";
@@ -340,6 +340,9 @@ function draw() {
 
 draw();
 
+
+
+
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     const gameState = gameStateManager.getState();
@@ -357,3 +360,11 @@ window.addEventListener(gameStartEventName, () => {
 window.addEventListener(unpauseGameEventName, () => {
   gameStateManager.setState(gameStates.RUNNING);
 });
+
+window.addEventListener(retryGameEventName, () => {
+  cleanUpScene()
+  ship.reset()
+
+  gameStateManager.setState(gameStates.RUNNING);
+})
+

@@ -80,6 +80,10 @@ body {
   margin-bottom: 25px;
 }
 
+.game-over-retry-button {
+  margin-top: 25px;
+}
+
 .game-over-screen {
   position: absolute;
   width: 25%;
@@ -116,7 +120,7 @@ h1 {
   text-shadow: 3px 3px 5px rgba(255, 255, 255, 0.5);
 }
 
-.start-button {
+.retro-button {
   background: yellow;
   color: black;
   font-size: 1.2rem;
@@ -130,11 +134,11 @@ h1 {
   position: relative;
   box-shadow: 4px 4px black;
 }
-.start-button:hover {
+.retro-button:hover {
   background: orange;
   box-shadow: 6px 6px black;
 }
-.start-button:active {
+.retro-button:active {
   box-shadow: 2px 2px black;
   transform: translate(2px, 2px);
 }

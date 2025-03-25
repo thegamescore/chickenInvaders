@@ -3,22 +3,28 @@ export const pauseGameEventName = "pause-game";
 export const unpauseGameEventName = "unpause-game";
 export const gameOverEventName = "game-over";
 export const levelTransitionEventName = "level-transition";
+export const retryGameEventName = "retry-game"
 
-const gameStartEvent = new CustomEvent(gameStartEventName);
-const pauseGameEvent = new CustomEvent(pauseGameEventName);
-const unpauseGameEvent = new CustomEvent(unpauseGameEventName);
 
 export const startGame = () => {
+  const gameStartEvent = new CustomEvent(gameStartEventName);
   dispatchEvent(gameStartEvent);
 };
 
 export const pauseGame = () => {
+  const pauseGameEvent = new CustomEvent(pauseGameEventName);
   dispatchEvent(pauseGameEvent);
 };
 
 export const unPauseGame = () => {
-  dispatchEvent(unpauseGameEvent);
+  const unpauseGameEvent = new CustomEvent(unpauseGameEventName);
+  dispatchEvent(unpauseGameEvent)
 };
+
+export const retryGame = () => {
+  const retryGameEvent = new CustomEvent(retryGameEventName);
+  dispatchEvent(retryGameEvent)
+}
 
 export const setGameOver = ({ score }) => {
   const gameOverEvent = new CustomEvent(gameOverEventName, {
