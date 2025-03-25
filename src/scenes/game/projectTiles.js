@@ -5,10 +5,14 @@ import {InvaderProjectTile} from "./entites/InvaderProjectTile.js";
 import ProjectTileInvaderImagePng from "../../assets/projecttile-invader.png";
 import {EntityRegistry} from "./entites/EntityRegistry.js";
 
+
 const entityRegistry = new EntityRegistry()
 
 export const projectTiles = entityRegistry.getProjectTiles()
 export const invadersProjectTile = entityRegistry.getInvadersProjectTile()
+
+
+
 
 export const appendProjectTile = ({ship}) => () => {
     entityRegistry.appendProjectTile(
