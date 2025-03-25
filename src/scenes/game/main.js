@@ -33,11 +33,11 @@ import {
 import {
   assert,
   delay,
-  getRandomArrElement,
+
   removeProjectile,
 } from "../../helpers/helpers.js";
 
-import ProjectTileInvaderImagePng from "../../assets/projecttile-invader.png";
+
 
 import { drawStars, initializeStars, updateStars } from "./stars.js";
 import {
@@ -55,15 +55,19 @@ import {
 } from "../../events.js";
 import { GameStateManager } from "./gameStateManager.js";
 import { Points } from "./entites/Points.js";
-import {EntityRegistry} from "./entites/EntityRegistry.js";
+import {
+  appendInvaderProjectTile,
+  appendProjectTile,
+  invadersProjectTile,
+  projectTiles,
+  resetEntityRegistry
+} from "./projectTiles.js";
+
 
 // ------------------- CONSTANTS & INITIALIZATION -------------------
 
 const isAutoShotMode = MODE === availableShootingModes.AUTO;
 const isKeyPressMode = MODE === availableShootingModes.KEY_PRESS;
-
-const entityRegistry = new EntityRegistry()
-
 
 const points = new Points({
   [pointEvents.KILL_PROJECTILE]: 5,
@@ -90,41 +94,6 @@ initializeGame({
   gridSize: LEVELS[0].gridSize,
 });
 
-// ------------------- PROJECTILE HANDLING -------------------
-
-const appendProjectTile = () => {
-  entityRegistry.appendProjectTile(
-    new Projectile({
-      position: { x: ship.position.x + ship.width / 2, y: ship.position.y },
-      velocity: { x: 0, y: PROJECT_TILE_SPEED },
-      width: PROJECT_TILE_DIMENSIONS.width,
-      height: PROJECT_TILE_DIMENSIONS.height,
-    }),
-  );
-};
-
-const appendInvaderProjectTile = () => {
-  console.log("appendInvaderProjectTile");
-
-  const randomInvader = getRandomArrElement(invaders.invaders);
-
-  if (!randomInvader) return;
-
-  entityRegistry.appendInvader(
-    new InvaderProjectTile({
-      startPosition: {
-        x: randomInvader.position.x + INVADER_WIDTH / 2,
-        y: randomInvader.position.y + INVADER_HEIGHT / 2,
-      },
-      targetPosition: { x: ship.position.x, y: ship.position.y },
-      speed: 4,
-      width: 50,
-      height: 50,
-      imagePng: ProjectTileInvaderImagePng,
-    }),
-  );
-};
-
 // ------------------- INTERVALS & EVENTS -------------------
 
 let appendProjectTileIntervalId;
@@ -136,13 +105,16 @@ const startProjecttileIntervalForAutoMode = () => {
   }
 
   appendProjectTileIntervalId = setInterval(
-    appendProjectTile,
+    appendProjectTile({ship}),
     INTERVAL_BETWEEN_SHOOTING_IN_MS,
   );
 };
 
 const startInvadersShootingInterval = () => {
-  invadersShootingIntervalId = setInterval(appendInvaderProjectTile, 1000);
+  invadersShootingIntervalId = setInterval(appendInvaderProjectTile({
+    invaders: invaders.invaders,
+    ship
+  }), 1000);
 };
 
 const stopInvaderShootingInterval = () => {
@@ -208,12 +180,8 @@ const cleanUpIntervals = () => {
   }
 };
 
-const resetEntities = () => {
-  entityRegistry.reset()
-};
-
 const cleanUpScene = () => {
-  resetEntities();
+  resetEntityRegistry();
   cleanUpIntervals();
 };
 
@@ -309,8 +277,7 @@ function draw() {
 
   invaders.update();
 
-  const projectTiles = entityRegistry.getProjectTiles()
-  const invadersProjectTile = entityRegistry.getInvadersProjectTile()
+
 
   invadersOnScreen.forEach((invader, invaderIndex) => {
     invader.updateInvader({ x: invaders.velocity.x, y: invaders.velocity.y });
@@ -344,6 +311,12 @@ function draw() {
 draw();
 
 
+const resetGameBackToInitial = () => {
+  cleanUpScene()
+  ship.reset()
+  points.reset()
+}
+
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     const gameState = gameStateManager.getState();
@@ -363,8 +336,7 @@ window.addEventListener(unpauseGameEventName, () => {
 });
 
 window.addEventListener(retryGameEventName, () => {
-  cleanUpScene()
-  ship.reset()
+  resetGameBackToInitial()
 
   gameStateManager.setState(gameStates.RUNNING);
 })
