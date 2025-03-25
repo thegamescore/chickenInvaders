@@ -55,14 +55,15 @@ import {
 } from "../../events.js";
 import { GameStateManager } from "./gameStateManager.js";
 import { Points } from "./entites/Points.js";
+import {EntityRegistry} from "./entites/EntityRegistry.js";
 
 // ------------------- CONSTANTS & INITIALIZATION -------------------
 
 const isAutoShotMode = MODE === availableShootingModes.AUTO;
 const isKeyPressMode = MODE === availableShootingModes.KEY_PRESS;
 
-const projectTiles = [];
-const invadersProjectTile = [];
+const entityRegistry = new EntityRegistry()
+
 
 const points = new Points({
   [pointEvents.KILL_PROJECTILE]: 5,
@@ -92,7 +93,7 @@ initializeGame({
 // ------------------- PROJECTILE HANDLING -------------------
 
 const appendProjectTile = () => {
-  projectTiles.push(
+  entityRegistry.appendProjectTile(
     new Projectile({
       position: { x: ship.position.x + ship.width / 2, y: ship.position.y },
       velocity: { x: 0, y: PROJECT_TILE_SPEED },
@@ -109,7 +110,7 @@ const appendInvaderProjectTile = () => {
 
   if (!randomInvader) return;
 
-  invadersProjectTile.push(
+  entityRegistry.appendInvader(
     new InvaderProjectTile({
       startPosition: {
         x: randomInvader.position.x + INVADER_WIDTH / 2,
@@ -208,8 +209,7 @@ const cleanUpIntervals = () => {
 };
 
 const resetEntities = () => {
-  projectTiles.length = 0;
-  invadersProjectTile.length = 0;
+  entityRegistry.reset()
 };
 
 const cleanUpScene = () => {
@@ -309,6 +309,9 @@ function draw() {
 
   invaders.update();
 
+  const projectTiles = entityRegistry.getProjectTiles()
+  const invadersProjectTile = entityRegistry.getInvadersProjectTile()
+
   invadersOnScreen.forEach((invader, invaderIndex) => {
     invader.updateInvader({ x: invaders.velocity.x, y: invaders.velocity.y });
 
@@ -339,8 +342,6 @@ function draw() {
 }
 
 draw();
-
-
 
 
 document.addEventListener("visibilitychange", () => {
