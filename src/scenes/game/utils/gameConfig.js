@@ -20,3 +20,25 @@ export const PROJECT_TILE_DIMENSIONS = {
   width: 25,
   height: 25,
 };
+
+//LEVEL CONFIG
+export const LEVEL_TRANSITION_DELAY_MS = 2000;
+
+export const LEVELS = {
+  0: {
+    numberOfInvaders: 1,
+    gridSize: 1
+  },
+  1: {
+    numberOfInvaders: 25,
+    gridSize: 25,
+  },
+  2: {
+    numberOfInvaders: 50,
+    gridSize: 25,
+  },
+  3: {
+    numberOfInvaders: 100,
+    gridSize: 25,
+  },
+};
