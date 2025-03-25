@@ -7,7 +7,9 @@ import { Live } from "./entites/Live.js";
 import {
   INTERVAL_BETWEEN_SHOOTING_IN_MS,
   INVADER_HEIGHT,
-  INVADER_WIDTH, LEVEL_TRANSITION_DELAY_MS, LEVELS,
+  INVADER_WIDTH,
+  LEVEL_TRANSITION_DELAY_MS,
+  LEVELS,
   MODE,
   PROJECT_TILE_DIMENSIONS,
   PROJECT_TILE_SPEED,
@@ -48,6 +50,7 @@ import {
   dispatchLevelTransition,
   gameStartEventName,
   pauseGame,
+  setGameOver,
   unpauseGameEventName,
 } from "../../events.js";
 import { GameStateManager } from "./gameStateManager.js";
@@ -83,7 +86,7 @@ const initializeGame = ({ numberOfInvaders, gridSize }) => {
 
 initializeGame({
   numberOfInvaders: LEVELS[0].numberOfInvaders,
-  gridSize: LEVELS[0].gridSize
+  gridSize: LEVELS[0].gridSize,
 });
 
 // ------------------- PROJECTILE HANDLING -------------------
@@ -100,7 +103,7 @@ const appendProjectTile = () => {
 };
 
 const appendInvaderProjectTile = () => {
-  console.log("appendInvaderProjectTile")
+  console.log("appendInvaderProjectTile");
 
   const randomInvader = getRandomArrElement(invaders.invaders);
 
@@ -127,14 +130,15 @@ let appendProjectTileIntervalId;
 let invadersShootingIntervalId;
 
 const startProjecttileIntervalForAutoMode = () => {
-    if(!isAutoShotMode){
-      return
-    }
+  if (!isAutoShotMode) {
+    return;
+  }
 
-    appendProjectTileIntervalId = setInterval(appendProjectTile, INTERVAL_BETWEEN_SHOOTING_IN_MS);
-}
-
-
+  appendProjectTileIntervalId = setInterval(
+    appendProjectTile,
+    INTERVAL_BETWEEN_SHOOTING_IN_MS,
+  );
+};
 
 const startInvadersShootingInterval = () => {
   invadersShootingIntervalId = setInterval(appendInvaderProjectTile, 1000);
@@ -183,39 +187,56 @@ const updateLives = () => {
 
 // ------------------- GAME LOOP -------------------
 
+const maxLevel = 4;
+
+assert(
+  maxLevel === Object.keys(LEVELS).length,
+  "Please, specify all levels. Max levels and LEVELS from" +
+    "config must be the same",
+);
+
 const gameStateManager = new GameStateManager({
-  maxLevel: 5,
+  maxLevel,
 });
 
-const cleanUpScene = () => {
-  projectTiles.length = 0;
-  invadersProjectTile.length = 0;
+const cleanUpIntervals = () => {
   clearInterval(invadersShootingIntervalId);
 
-  if(isAutoShotMode){
-    clearInterval(appendProjectTileIntervalId)
+  if (isAutoShotMode) {
+    clearInterval(appendProjectTileIntervalId);
   }
+};
+
+const resetEntities = () => {
+  projectTiles.length = 0;
+  invadersProjectTile.length = 0;
+};
+
+const cleanUpScene = () => {
+  resetEntities();
+  cleanUpIntervals();
 };
 
 const resumeScene = () => {
   startInvadersShootingInterval();
-  startProjecttileIntervalForAutoMode()
-}
+  startProjecttileIntervalForAutoMode();
+};
 
 const startLevelTransition = async () => {
   gameStateManager.updateCurrentLevel();
+
   const currentLevel = gameStateManager.getCurrentLevel();
+  const levelData = LEVELS[currentLevel];
 
   if (currentLevel === MAX_LEVEL_REACHED) {
     gameStateManager.setState(gameStates.WIN);
     return;
   }
 
-  assert(LEVELS[currentLevel], "Current level not specified");
+  assert(levelData, "Current level not specified");
 
   dispatchLevelTransition(currentLevel);
-
-  const levelData = LEVELS[currentLevel];
+  cleanUpScene();
 
   ship.resetShipPosition();
 
@@ -224,8 +245,6 @@ const startLevelTransition = async () => {
     gridSize: levelData.gridSize,
   });
 
-  cleanUpScene();
-
   await delay(LEVEL_TRANSITION_DELAY_MS);
 
   gameStateManager.setState(gameStates.RUNNING);
@@ -233,7 +252,7 @@ const startLevelTransition = async () => {
 
 gameStateManager.onChange((newState) => {
   if (newState === gameStates.RUNNING) {
-    resumeScene()
+    resumeScene();
   }
 
   if (newState === gameStates.PAUSED) {
@@ -242,11 +261,14 @@ gameStateManager.onChange((newState) => {
   }
 
   if (newState === gameStates.GAME_OVER) {
-    cleanUpScene()
+    cleanUpScene();
+    setGameOver({
+      score: points.getTotalPoints(),
+    });
   }
 
   if (newState === gameStates.LEVEL_TRANSITION) {
-    startLevelTransition()
+    startLevelTransition();
   }
 });
 

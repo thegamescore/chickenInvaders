@@ -27,7 +27,7 @@ export const LEVEL_TRANSITION_DELAY_MS = 2000;
 export const LEVELS = {
   0: {
     numberOfInvaders: 1,
-    gridSize: 1
+    gridSize: 1,
   },
   1: {
     numberOfInvaders: 25,

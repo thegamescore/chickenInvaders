@@ -42,14 +42,6 @@ body {
   display: none;
 }
 
-.game-over-screen {
-  position: absolute;
-}
-
-.game-over-screen-hidden {
-  display: none;
-}
-
 .chicken-invaders-canvas {
   display: none;
 }
@@ -80,6 +72,43 @@ body {
 
 .level-transition-visible {
   opacity: 1;
+}
+
+.game-over-screen-title {
+  font-size: 32px;
+  text-transform: uppercase;
+  margin-bottom: 25px;
+}
+
+.game-over-screen {
+  position: absolute;
+  width: 25%;
+  height: 25%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.game-over-screen-content {
+  text-align: center;
+  color: black;
+}
+
+.score-label {
+  font-size: 20px;
+  margin: 0;
+}
+
+.final-score {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 10px 0 20px;
+}
+
+.game-over-screen-hidden {
+  display: none;
 }
 
 h1 {

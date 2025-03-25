@@ -24,9 +24,18 @@
         <button id="unpause-button" class="start-button">Unpause button</button>
       </div>
     </div>
-    <div id="game-over-screen" class="game-over-screen game-over-screen-hidden">
+    <div
+      id="game-over-screen"
+      class="game-over-screen game-over-screen-hidden"
+      role="dialog"
+      aria-labelledby="game-over-title"
+      aria-modal="true"
+    >
       <div class="game-over-screen-content">
-        <button id="retry-button" class="start-button">Retry button</button>
+        <p class="game-over-screen-title">Game over</p>
+        <p>Your score: <span id="game-over-score"></span></p>
+        <p id="final-score" class="final-score"></p>
+        <button id="retry-button" class="start-button">Try again</button>
       </div>
     </div>
     <div id="level-transition-text" class="level-transition">

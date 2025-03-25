@@ -1,9 +1,10 @@
 import { gameOverEventName } from "../../events.js";
 
 const gameOverScreenWrapper = document.getElementById("game-over-screen");
+const retryButton = document.getElementById("retry-button");
 
-window.addEventListener(gameOverEventName, () => {
-  gameOverScreenWrapper.classList.remove("pause-screen-hidden");
+window.addEventListener(gameOverEventName, ({ detail }) => {
+  gameOverScreenWrapper.classList.remove("game-over-screen-hidden");
 });
 
-gameOverScreenWrapper.addEventListener("click", () => {});
+retryButton.addEventListener("click", () => {});

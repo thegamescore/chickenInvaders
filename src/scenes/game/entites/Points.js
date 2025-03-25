@@ -12,6 +12,10 @@ export class Points {
     this.eventCounts[eventName] = (this.eventCounts[eventName] || 0) + 1;
   }
 
+  getTotalPoints() {
+    return this.totalPoints;
+  }
+
   drawPoints(ctx, canvasWidth) {
     const padding = 20;
     const width = 300;
