@@ -1,68 +1,46 @@
-import { Ship } from "./entites/Ship.js";
-import { Projectile } from "./entites/Projectile.js";
-import { Invaders } from "./entites/Invaders.js";
-import { InvaderProjectTile } from "./entites/InvaderProjectTile.js";
-import { Live } from "./entites/Live.js";
+import {Ship} from "./entites/Ship.js";
+import {Invaders} from "./entites/Invaders.js";
+import {Live} from "./entites/Live.js";
 
 import {
   INTERVAL_BETWEEN_SHOOTING_IN_MS,
-  INVADER_HEIGHT,
-  INVADER_WIDTH,
   LEVEL_TRANSITION_DELAY_MS,
   LEVELS,
   MODE,
-  PROJECT_TILE_DIMENSIONS,
-  PROJECT_TILE_SPEED,
   SHIP_HEIGHT,
   SHIP_WIDTH,
 } from "./utils/gameConfig.js";
-
-import {
-  availableShootingModes,
-  gameStates,
-  keyMap,
-  MAX_LEVEL_REACHED,
-  pointEvents,
-} from "../../utils/const.js";
-import {
-  keyPressedMap,
-  updateKeyState,
-  updateShipPosition,
-} from "./controls.js";
-
-import {
-  assert,
-  delay,
-
-  removeProjectile,
-} from "../../helpers/helpers.js";
-
-
-
-import { drawStars, initializeStars, updateStars } from "./stars.js";
-import {
-  isProjectTileCollidingWithInvader,
-  isProjectTileCollidingWithShip,
-} from "./collisions.js";
-
-import { canvas, canvasHeight, canvasWidth, ctx } from "./canvas.js";
-import {
-  dispatchLevelTransition,
-  gameStartEventName,
-  pauseGame, retryGameEventName,
-  setGameOver,
-  unpauseGameEventName,
-} from "../../events.js";
-import { GameStateManager } from "./gameStateManager.js";
-import { Points } from "./entites/Points.js";
 import {
   appendInvaderProjectTile,
   appendProjectTile,
   invadersProjectTile,
-  projectTiles,
+  projectTiles, removeInvadersProjectTile,
+  removeProjectile,
   resetEntityRegistry
-} from "./projectTiles.js";
+} from './projectTiles.js'
 
+import {availableShootingModes, gameStates, keyMap, MAX_LEVEL_REACHED, pointEvents,} from "../../utils/const.js";
+import {keyPressedMap, updateKeyState, updateShipPosition,} from "./controls.js";
+
+import {assert, delay,} from "../../helpers/helpers.js";
+
+
+import {drawStars, initializeStars, updateStars} from "./stars.js";
+import {createIsOffScreen, isProjectTileCollidingWithInvader, isProjectTileCollidingWithShip,} from "./collisions.js";
+
+import {canvas, canvasHeight, canvasWidth, ctx} from "./canvas.js";
+import {
+  dispatchLevelTransition,
+  gameStartEventName,
+  pauseGame,
+  retryGameEventName,
+  setGameOver,
+  unpauseGameEventName,
+} from "../../events.js";
+import {GameStateManager} from "./gameStateManager.js";
+import {Points} from "./entites/Points.js";
+import {Present} from "./entites/Present.js";
+import {PresentsRegistry} from "./entites/PresentsRegistry.js";
 
 
 // ------------------- CONSTANTS & INITIALIZATION -------------------
@@ -82,6 +60,7 @@ const ship = new Ship({
   numberOfLives: 1,
 });
 
+
 const invaders = new Invaders();
 
 const initializeGame = ({ numberOfInvaders, gridSize }) => {
@@ -90,9 +69,12 @@ const initializeGame = ({ numberOfInvaders, gridSize }) => {
   initializeStars();
 };
 
+const initialInvaders = LEVELS[0].numberOfInvaders
+const initialGridSize = LEVELS[0].gridSize
+
 initializeGame({
-  numberOfInvaders: LEVELS[0].numberOfInvaders,
-  gridSize: LEVELS[0].gridSize,
+  numberOfInvaders: initialInvaders,
+  gridSize: initialGridSize,
 });
 
 // ------------------- INTERVALS & EVENTS -------------------
@@ -133,12 +115,10 @@ window.addEventListener("keyup", (event) => updateKeyState(event, false));
 
 // ------------------- UTILITIES -------------------
 
+const checkIfIsOffScreen = createIsOffScreen(canvasWidth, canvasHeight);
+
 const cleanUpProjectTile = (projectile, index, list) => {
-  const isOffScreen =
-    projectile.position.x < 0 ||
-    projectile.position.x > canvasWidth ||
-    projectile.position.y < 0 ||
-    projectile.position.y > canvasHeight;
+  const isOffScreen = checkIfIsOffScreen(projectile.position)
 
   if (isOffScreen) removeProjectile(list, index);
 };
@@ -191,6 +171,20 @@ const resumeScene = () => {
   startProjecttileIntervalForAutoMode();
 };
 
+const presentRegistry = new PresentsRegistry()
+
+setInterval(() => {
+  const present = new Present({
+    width: 50,
+    height: 50,
+    position: { x: Math.floor(Math.random() * canvas.height), y: 50 },
+    velocity: { x: 0, y: 0 },
+  });
+
+  presentRegistry.appendPresent(present)
+}, 1000)
+
+
 const startLevelTransition = async () => {
   gameStateManager.updateCurrentLevel();
 
@@ -208,6 +202,8 @@ const startLevelTransition = async () => {
   cleanUpScene();
 
   ship.resetShipPosition();
+
+  presentRegistry.resetPresents()
 
   invaders.initialize({
     numberOfInvaders: levelData.numberOfInvaders,
@@ -240,6 +236,9 @@ gameStateManager.onChange((newState) => {
     startLevelTransition();
   }
 });
+
+
+
 
 function draw() {
   let GAME_STATE = gameStateManager.getState();
@@ -276,9 +275,16 @@ function draw() {
     gameStateManager.setState(gameStates.LEVEL_TRANSITION);
   }
 
+  const presents = presentRegistry.getPresents()
+
+  presents.forEach(present => {
+    present.updatePresent({
+      x: 0,
+      y: 5
+    })
+  })
+
   invaders.update();
-
-
 
   invadersOnScreen.forEach((invader, invaderIndex) => {
     invader.updateInvader({ x: invaders.velocity.x, y: invaders.velocity.y });
@@ -301,21 +307,32 @@ function draw() {
   });
 
   invadersProjectTile.forEach((projectile, index) => {
+    if(checkIfIsOffScreen(projectile.position)){
+      removeInvadersProjectTile(invadersProjectTile, index);
+    }
+
     if (isProjectTileCollidingWithShip(projectile, ship)) {
       removeProjectile(invadersProjectTile, index);
       ship.destroy();
     }
+
     projectile.update();
   });
 }
 
 draw();
 
-
 const resetGameBackToInitial = () => {
   cleanUpScene()
   ship.reset()
   points.reset()
+  gameStateManager.resetGame()
+  presentRegistry.resetPresents()
+
+  invaders.initialize({
+    numberOfInvaders: initialInvaders,
+    gridSize: initialGridSize
+  })
 }
 
 document.addEventListener("visibilitychange", () => {
@@ -338,7 +355,6 @@ window.addEventListener(unpauseGameEventName, () => {
 
 window.addEventListener(retryGameEventName, () => {
   resetGameBackToInitial()
-
   gameStateManager.setState(gameStates.RUNNING);
 })
 

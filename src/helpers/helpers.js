@@ -2,9 +2,7 @@ export function getRandomArrElement(items) {
   return items[Math.floor(Math.random() * items.length)];
 }
 
-export function removeProjectile(projectTiles, index) {
-  projectTiles.splice(index, 1);
-}
+
 
 export function assert(condition, message) {
   if (!condition) {

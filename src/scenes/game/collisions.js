@@ -15,3 +15,6 @@ export function isProjectTileCollidingWithInvader(projectile, invader) {
     projectile.position.y <= invader.position.y + invader.height
   );
 }
+
+export const createIsOffScreen = (canvasWidth, canvasHeight) => ({ x, y }) =>
+    x < 0 || x > canvasWidth || y < 0 || y > canvasHeight;

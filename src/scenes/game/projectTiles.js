@@ -11,8 +11,13 @@ const entityRegistry = new EntityRegistry()
 export const projectTiles = entityRegistry.getProjectTiles()
 export const invadersProjectTile = entityRegistry.getInvadersProjectTile()
 
+export const removeProjectile = (index) => {
+    entityRegistry.removeProjectTile(index)
+}
 
-
+export const removeInvadersProjectTile = (index) => {
+    entityRegistry.removeInvadersProjectTile(index)
+}
 
 export const appendProjectTile = ({ship}) => () => {
     entityRegistry.appendProjectTile(

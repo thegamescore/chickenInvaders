@@ -28,6 +28,10 @@ export class GameStateManager {
     this.currentLevel += 1;
   }
 
+  resetGame(){
+    this.currentLevel = 0;
+  }
+
   setState(newState) {
     if (this.state !== newState) {
       this.state = newState;

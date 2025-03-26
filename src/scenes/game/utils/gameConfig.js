@@ -31,11 +31,11 @@ export const LEVELS = {
   },
   1: {
     numberOfInvaders: 25,
-    gridSize: 25,
+    gridSize: 5,
   },
   2: {
     numberOfInvaders: 50,
-    gridSize: 25,
+    gridSize: 10,
   },
   3: {
     numberOfInvaders: 100,

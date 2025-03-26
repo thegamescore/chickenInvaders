@@ -6,8 +6,6 @@ const levelTranstionCounter = document.getElementById(
 );
 
 window.addEventListener(levelTransitionEventName, (event) => {
-  console.log(event);
-
   levelTranstionCounter.innerText = event.detail.currentLevel;
 
   eventTransitionWrapper.classList.add("level-transition-visible");

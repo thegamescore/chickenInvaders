@@ -16,6 +16,14 @@ export class EntityRegistry {
         return this.invadersProjectTile
     }
 
+    removeProjectTile(index){
+        this.projectTiles.splice(index, 1);
+    }
+
+    removeInvadersProjectTile(index){
+        this.invadersProjectTile.splice(index, 1)
+    }
+
     appendInvader(invader){
         this.invadersProjectTile.push(invader)
     }
