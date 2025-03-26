@@ -24,4 +24,5 @@ export const MAX_LEVEL_REACHED = "MAX_LEVEL_REACHED";
 
 export const pointEvents = {
   KILL_PROJECTILE: "KILL_PROJECTILE",
+  CATCH_PRESENT: "CATCH_PRESENT"
 };

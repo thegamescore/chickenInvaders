@@ -1,9 +1,9 @@
-export function isProjectTileCollidingWithShip(projectile, ship) {
+export function isElementCollidingWithShip(element, ship) {
   return (
-    projectile.position.x + projectile.width > ship.position.x &&
-    projectile.position.x < ship.position.x + ship.width &&
-    projectile.position.y > ship.position.y &&
-    projectile.position.y < ship.position.y + ship.height
+      element.position.x + element.width > ship.position.x &&
+      element.position.x < ship.position.x + ship.width &&
+      element.position.y > ship.position.y &&
+      element.position.y < ship.position.y + ship.height
   );
 }
 

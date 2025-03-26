@@ -26,7 +26,7 @@ import {assert, delay,} from "../../helpers/helpers.js";
 
 
 import {drawStars, initializeStars, updateStars} from "./stars.js";
-import {createIsOffScreen, isProjectTileCollidingWithInvader, isProjectTileCollidingWithShip,} from "./collisions.js";
+import {createIsOffScreen, isProjectTileCollidingWithInvader, isElementCollidingWithShip,} from "./collisions.js";
 
 import {canvas, canvasHeight, canvasWidth, ctx} from "./canvas.js";
 import {
@@ -50,6 +50,7 @@ const isKeyPressMode = MODE === availableShootingModes.KEY_PRESS;
 
 const points = new Points({
   [pointEvents.KILL_PROJECTILE]: 5,
+  [pointEvents.CATCH_PRESENT]: 100
 });
 
 const ship = new Ship({
@@ -199,8 +200,11 @@ const startLevelTransition = async () => {
   assert(levelData, "Current level not specified");
 
   dispatchLevelTransition(currentLevel);
-  cleanUpScene();
 
+  await delay(LEVEL_TRANSITION_DELAY_MS);
+
+
+  cleanUpScene();
   ship.resetShipPosition();
 
   presentRegistry.resetPresents()
@@ -209,8 +213,6 @@ const startLevelTransition = async () => {
     numberOfInvaders: levelData.numberOfInvaders,
     gridSize: levelData.gridSize,
   });
-
-  await delay(LEVEL_TRANSITION_DELAY_MS);
 
   gameStateManager.setState(gameStates.RUNNING);
 };
@@ -236,9 +238,6 @@ gameStateManager.onChange((newState) => {
     startLevelTransition();
   }
 });
-
-
-
 
 function draw() {
   let GAME_STATE = gameStateManager.getState();
@@ -301,6 +300,14 @@ function draw() {
     });
   });
 
+  presents.forEach(((present, index) => {
+    if (isElementCollidingWithShip(present, ship)) {
+      presentRegistry.removePresent(index)
+      points.updatePoints(pointEvents.CATCH_PRESENT);
+    }
+  }))
+
+
   projectTiles.forEach((projectile, index) => {
     cleanUpProjectTile(projectile, index, projectTiles);
     projectile.update();
@@ -311,7 +318,7 @@ function draw() {
       removeInvadersProjectTile(invadersProjectTile, index);
     }
 
-    if (isProjectTileCollidingWithShip(projectile, ship)) {
+    if (isElementCollidingWithShip(projectile, ship)) {
       removeProjectile(invadersProjectTile, index);
       ship.destroy();
     }

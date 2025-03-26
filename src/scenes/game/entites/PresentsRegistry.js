@@ -11,6 +11,9 @@ export class PresentsRegistry {
         return this.presents
     }
 
+    removePresent(index){
+        this.presents.splice(index, 1)
+    }
 
     resetPresents(){
         this.presents = []
