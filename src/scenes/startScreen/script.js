@@ -1,21 +1,21 @@
-import { startGame } from "../../events.js";
-import {getGameData} from "../../fake/faker.js";
+import {gameReadyEventName, startGame} from "../../events.js";
+import {getData} from "../game/configData.js";
 
 const startButton = document.getElementById("start-button");
 const chickenInvadersCanvas = document.getElementById(
   "chicken-invaders-canvas",
 );
 const startScreenWrapper = document.getElementById("start-screen");
+const loadingAssetsInfo = document.getElementById("loading-assets-info")
 
 
-window.addEventListener("load", async () => {
-  const data  = await getGameData()
+window.addEventListener("load",  getData);
 
+window.addEventListener(gameReadyEventName, () => {
+    loadingAssetsInfo.classList.add("loading-assets-hidden")
+    startButton.disabled = false
+    startButton.focus()
 })
-
-window.addEventListener("load", () => {
-  startButton.focus();
-});
 
 startButton.addEventListener("click", () => {
   chickenInvadersCanvas.classList.add("chicken-invaders-visible");

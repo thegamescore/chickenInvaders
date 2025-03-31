@@ -28,17 +28,21 @@ export const LEVELS = {
   0: {
     numberOfInvaders: 1,
     gridSize: 1,
+    numberOfPresentsPerLevel: 2
   },
   1: {
     numberOfInvaders: 25,
     gridSize: 5,
+    numberOfPresentsPerLevel: 3
   },
   2: {
     numberOfInvaders: 50,
     gridSize: 10,
+    numberOfPresentsPerLevel: 4
   },
   3: {
     numberOfInvaders: 100,
     gridSize: 25,
+    numberOfPresentsPerLevel: 1
   },
 };

@@ -1,4 +1,4 @@
-import InvaderPng from "../../../assets/invader.png";
+import InvaderPng from "../../../assets/invader-temp.png";
 
 import { ctx } from "../canvas.js";
 

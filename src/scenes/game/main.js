@@ -10,6 +10,7 @@ import {
   SHIP_HEIGHT,
   SHIP_WIDTH,
 } from "./utils/gameConfig.js";
+
 import {
   appendInvaderProjectTile,
   appendProjectTile,
@@ -41,6 +42,13 @@ import {GameStateManager} from "./gameStateManager.js";
 import {Points} from "./entites/Points.js";
 import {Present} from "./entites/Present.js";
 import {PresentsRegistry} from "./entites/PresentsRegistry.js";
+import {PresentsSpawner} from "./entites/PresentSwapner.js";
+
+
+
+
+
+
 
 
 // ------------------- CONSTANTS & INITIALIZATION -------------------
@@ -83,7 +91,7 @@ initializeGame({
 let appendProjectTileIntervalId;
 let invadersShootingIntervalId;
 
-const startProjecttileIntervalForAutoMode = () => {
+const startProjectileIntervalForAutoMode = () => {
   if (!isAutoShotMode) {
     return;
   }
@@ -154,8 +162,24 @@ const gameStateManager = new GameStateManager({
   maxLevel,
 });
 
+const presentsSpawner = new PresentsSpawner({
+  getCurrentLevel: () => gameStateManager.getCurrentLevel(),
+  levelDataMap: LEVELS,
+  createPresent: () =>
+      new Present({
+        width: 50,
+        height: 50,
+        position: { x: Math.floor(Math.random() * canvas.height), y: 50 },
+        velocity: { x: 0, y: 0 },
+        imageUrl: product
+      }),
+  onSpawn: (present) => presentRegistry.appendPresent(present),
+});
+
+
 const cleanUpIntervals = () => {
   clearInterval(invadersShootingIntervalId);
+  presentsSpawner.reset()
 
   if (isAutoShotMode) {
     clearInterval(appendProjectTileIntervalId);
@@ -169,22 +193,11 @@ const cleanUpScene = () => {
 
 const resumeScene = () => {
   startInvadersShootingInterval();
-  startProjecttileIntervalForAutoMode();
+  startProjectileIntervalForAutoMode();
+  presentsSpawner.start()
 };
 
 const presentRegistry = new PresentsRegistry()
-
-setInterval(() => {
-  const present = new Present({
-    width: 50,
-    height: 50,
-    position: { x: Math.floor(Math.random() * canvas.height), y: 50 },
-    velocity: { x: 0, y: 0 },
-  });
-
-  presentRegistry.appendPresent(present)
-}, 1000)
-
 
 const startLevelTransition = async () => {
   gameStateManager.updateCurrentLevel();
@@ -225,6 +238,7 @@ gameStateManager.onChange((newState) => {
   if (newState === gameStates.PAUSED) {
     stopInvaderShootingInterval();
     pauseGame();
+    cleanUpScene();
   }
 
   if (newState === gameStates.GAME_OVER) {
