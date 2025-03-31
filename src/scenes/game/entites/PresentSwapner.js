@@ -1,3 +1,5 @@
+import {setRandomInterval} from "../../../helpers/helpers.js";
+
 export class PresentsSpawner {
     constructor({ getCurrentLevel, levelDataMap, createPresent, onSpawn }) {
         this.getCurrentLevel = getCurrentLevel;
@@ -10,9 +12,11 @@ export class PresentsSpawner {
     }
 
     start() {
-        if (this.intervalId) return; // prevent double intervals
 
-        this.intervalId = setInterval(() => {
+
+
+
+        this.intervalId = setRandomInterval(() => {
             const currentLevel = this.getCurrentLevel();
             const levelData = this.levelDataMap[currentLevel];
 
@@ -21,13 +25,19 @@ export class PresentsSpawner {
             this.presentsCounter++;
 
             const present = this.createPresent();
+
+
+
             this.onSpawn(present);
-        }, 1000);
+        }, 1000, 2000);
     }
 
     stop() {
-        clearInterval(this.intervalId);
-        this.intervalId = null;
+        if(this.intervalId){
+            this.intervalId.clear()
+        }
+
+
     }
 
     reset() {

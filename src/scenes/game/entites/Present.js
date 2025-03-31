@@ -10,8 +10,6 @@ export class Present {
         this.velocity = velocity;
         this.image = new Image();
 
-        console.log(imageUrl)
-
         this.addImageUrl(imageUrl);
     }
 

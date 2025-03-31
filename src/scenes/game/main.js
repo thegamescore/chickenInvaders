@@ -15,7 +15,8 @@ import {
   appendInvaderProjectTile,
   appendProjectTile,
   invadersProjectTile,
-  projectTiles, removeInvadersProjectTile,
+  projectTiles,
+  removeInvadersProjectTile,
   removeProjectile,
   resetEntityRegistry
 } from './projectTiles.js'
@@ -27,7 +28,7 @@ import {assert, delay,} from "../../helpers/helpers.js";
 
 
 import {drawStars, initializeStars, updateStars} from "./stars.js";
-import {createIsOffScreen, isProjectTileCollidingWithInvader, isElementCollidingWithShip,} from "./collisions.js";
+import {createIsOffScreen, isElementCollidingWithShip, isProjectTileCollidingWithInvader,} from "./collisions.js";
 
 import {canvas, canvasHeight, canvasWidth, ctx} from "./canvas.js";
 import {
@@ -40,15 +41,48 @@ import {
 } from "../../events.js";
 import {GameStateManager} from "./gameStateManager.js";
 import {Points} from "./entites/Points.js";
-import {Present} from "./entites/Present.js";
 import {PresentsRegistry} from "./entites/PresentsRegistry.js";
-import {PresentsSpawner} from "./entites/PresentSwapner.js";
+import {getData} from "./configData.js";
+import {PresentsModule} from "./modules/PresentModule.js";
+
+const presentRegistry = new PresentsRegistry()
 
 
+const preloadImage = src =>
+    new Promise((resolve, reject) => {
+      const image = new Image()
+      image.onload = () => resolve(image);
+      image.onerror = reject
+      image.src = src
+    })
 
 
+const preloadImages = async (products) => {
+  return await Promise.all(products.map(x => preloadImage(x.productImage)))
+}
+
+window.addEventListener("load", async () => {
+  try {
+    const data = await getData();
+
+    const preloadedImages =  await  preloadImages(data.products)
+
+    PresentsModule.initialize(
+        {
+          data,
+          currentLevel: gameStateManager.getCurrentLevel.bind(gameStateManager),
+          presentRegistry: presentRegistry,
+          levels: LEVELS,
+          imageUrl: preloadedImages?.[0]?.src
+        }
+    );
+  } catch (error) {
+    console.error("Error loading game data:", error);
+  }
+});
 
 
+const { startPresents, resetPresents } = PresentsModule;
 
 
 // ------------------- CONSTANTS & INITIALIZATION -------------------
@@ -162,24 +196,9 @@ const gameStateManager = new GameStateManager({
   maxLevel,
 });
 
-const presentsSpawner = new PresentsSpawner({
-  getCurrentLevel: () => gameStateManager.getCurrentLevel(),
-  levelDataMap: LEVELS,
-  createPresent: () =>
-      new Present({
-        width: 50,
-        height: 50,
-        position: { x: Math.floor(Math.random() * canvas.height), y: 50 },
-        velocity: { x: 0, y: 0 },
-        imageUrl: product
-      }),
-  onSpawn: (present) => presentRegistry.appendPresent(present),
-});
-
-
 const cleanUpIntervals = () => {
   clearInterval(invadersShootingIntervalId);
-  presentsSpawner.reset()
+  resetPresents()
 
   if (isAutoShotMode) {
     clearInterval(appendProjectTileIntervalId);
@@ -194,10 +213,11 @@ const cleanUpScene = () => {
 const resumeScene = () => {
   startInvadersShootingInterval();
   startProjectileIntervalForAutoMode();
-  presentsSpawner.start()
+
+  startPresents()
 };
 
-const presentRegistry = new PresentsRegistry()
+
 
 const startLevelTransition = async () => {
   gameStateManager.updateCurrentLevel();
