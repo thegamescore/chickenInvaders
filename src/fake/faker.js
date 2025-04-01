@@ -33,8 +33,8 @@ export function getGameData() {
                         gridSize: 25,
                         numberOfPresentsPerLevel: 1
                     },
-                }
-
+                },
+                maxLevels: 4
             })
         }, 1)
     })

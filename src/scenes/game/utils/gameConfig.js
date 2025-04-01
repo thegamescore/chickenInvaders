@@ -24,4 +24,14 @@ export const PROJECT_TILE_DIMENSIONS = {
 //LEVEL CONFIG
 export const LEVEL_TRANSITION_DELAY_MS = 2000;
 
+export const gameConfigAssert = (config) =>{
+    const { maxLevels, levels } = config;
 
+
+
+    if(maxLevels !== Object.keys(levels)?.length ){
+      throw new Error("Unexpected configs, provided levels must equal max levels.")
+    }
+
+
+}

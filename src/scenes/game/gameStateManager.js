@@ -1,4 +1,5 @@
 import { gameStates, MAX_LEVEL_REACHED } from "../../utils/const.js";
+import { gameConfigAssert} from "./utils/gameConfig.js";
 
 export class GameStateManager {
   constructor() {
@@ -7,12 +8,21 @@ export class GameStateManager {
     this.listeners = new Set();
     this.config = {
       levels: null,
-      maxLevel: null
+      maxLevels: null
     }
   }
 
   setConfig(config){
+    gameConfigAssert(config)
+
     this.config = config
+  }
+
+  getInitialData(){
+    return {
+      initialInvaders: this.config.levels[0].numberOfInvaders,
+      initialGridSize:  this.config.levels[0].gridSize
+    }
   }
 
   getCurrentLevelData(){

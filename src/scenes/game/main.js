@@ -45,10 +45,6 @@ import {getData} from "./configData.js";
 import {PresentsModule} from "./modules/PresentModule.js";
 
 
-
-
-
-
 const gameStateManager = new GameStateManager();
 
 const presentRegistry = new PresentsRegistry()
@@ -57,13 +53,13 @@ window.addEventListener("load", async () => {
   try {
     const data = await getData();
 
-    const { products, levels, maxLevel } = data;
+    const { products, levels, maxLevels } = data;
 
     const preloadedImages =  await  preloadImages(products)
 
     gameStateManager.setConfig({
       levels: levels,
-      maxLevel
+      maxLevels
     })
 
     PresentsModule.initialize(
@@ -76,8 +72,7 @@ window.addEventListener("load", async () => {
         }
     );
 
-    const initialInvaders = levels[0].numberOfInvaders
-    const initialGridSize = levels[0].gridSize
+    const { initialInvaders, initialGridSize  } = gameStateManager.getInitialData()
 
     initializeGame({
       numberOfInvaders: initialInvaders,
@@ -364,6 +359,8 @@ const resetGameBackToInitial = () => {
   points.reset()
   gameStateManager.resetGame()
   presentRegistry.resetPresents()
+
+  const { initialInvaders, initialGridSize  } = gameStateManager.getInitialData()
 
   invaders.initialize({
     numberOfInvaders: initialInvaders,
