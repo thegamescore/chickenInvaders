@@ -2,7 +2,7 @@ import {PresentsSpawner} from "../entites/PresentSwapner.js";
 
 import {Present} from "../entites/Present.js";
 import {canvas} from "../canvas.js";
-import {assert } from "../../..//helpers/helpers.js"
+import {assert, getRandomArrElement} from "../../..//helpers/helpers.js"
 
 export const PresentsModule = (() => {
     let presentsSpawner;
@@ -10,7 +10,7 @@ export const PresentsModule = (() => {
 
 
     const initializePresents = ({
-                                    data, currentLevel, presentRegistry, levels, image
+                                    data, currentLevel, presentRegistry, levels, preloadedImages
                                 }) => {
 
 
@@ -38,7 +38,7 @@ export const PresentsModule = (() => {
                     y: 50,
                 },
                 velocity: { x: 0, y: 0 },
-                image,
+                image: getRandomArrElement(preloadedImages),
             }),
             onSpawn: presentRegistry.appendPresent.bind(presentRegistry),
         });

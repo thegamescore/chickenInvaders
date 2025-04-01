@@ -16,8 +16,6 @@ export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 export const setRandomInterval = (intervalFunction, minDelay, maxDelay) => {
   let timeout;
 
-  console.log("run")
-
   const runInterval = () => {
     const timeoutFunction = () => {
       intervalFunction();

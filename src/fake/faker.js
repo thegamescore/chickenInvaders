@@ -9,7 +9,7 @@ export function getGameData() {
                     },
                     {
                         id: 2,
-                        productImage: "https://www.shutterstock.com/image-illustration/3d-render-number-eight-digital-260nw-2015739203.jpg"
+                        productImage: "https://pe-images.s3.amazonaws.com/basics/cc/image-size-resolution/resize-images-for-print/image-cropped-8x10.jpg"
                     }
                 ],
                 levels: {

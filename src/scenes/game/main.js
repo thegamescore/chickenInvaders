@@ -23,8 +23,7 @@ import {
 import {availableShootingModes, gameStates, keyMap, MAX_LEVEL_REACHED, pointEvents,} from "../../utils/const.js";
 import {keyPressedMap, updateKeyState, updateShipPosition,} from "./controls.js";
 
-import {assert, delay, preloadImages,} from "../../helpers/helpers.js";
-
+import {assert, delay, getRandomArrElement, preloadImages,} from "../../helpers/helpers.js";
 
 import {drawStars, initializeStars, updateStars} from "./stars.js";
 import {createIsOffScreen, isElementCollidingWithShip, isProjectTileCollidingWithInvader,} from "./collisions.js";
@@ -45,54 +44,11 @@ import {getData} from "./configData.js";
 import {PresentsModule} from "./modules/PresentModule.js";
 
 
+// ------------------- INITIALIZATION  -------------------
+
 const gameStateManager = new GameStateManager();
 
 const presentRegistry = new PresentsRegistry()
-
-window.addEventListener("load", async () => {
-  try {
-    const data = await getData();
-
-    const { products, levels, maxLevels } = data;
-
-    const preloadedImages =  await  preloadImages(products)
-
-    gameStateManager.setConfig({
-      levels: levels,
-      maxLevels
-    })
-
-    PresentsModule.initialize(
-        {
-          data,
-          currentLevel: gameStateManager.getCurrentLevel.bind(gameStateManager),
-          presentRegistry: presentRegistry,
-          levels,
-          imageUrl: preloadedImages?.[0]
-        }
-    );
-
-    const { initialInvaders, initialGridSize  } = gameStateManager.getInitialData()
-
-    initializeGame({
-      numberOfInvaders: initialInvaders,
-      gridSize: initialGridSize,
-    });
-
-
-  } catch (error) {
-    console.error("Error loading game data:", error);
-  }
-});
-
-
-const { startPresents, resetPresents } = PresentsModule;
-
-
-// ------------------- CONSTANTS & INITIALIZATION -------------------
-
-const isAutoShotMode = MODE === availableShootingModes.AUTO;
-const isKeyPressMode = MODE === availableShootingModes.KEY_PRESS;
 
 const points = new Points({
   [pointEvents.KILL_PROJECTILE]: 5,
@@ -116,7 +72,52 @@ const initializeGame = ({ numberOfInvaders, gridSize }) => {
   initializeStars();
 };
 
+window.addEventListener("load", async () => {
+  try {
+    const data = await getData();
 
+    const { products, levels, maxLevels } = data;
+
+    const preloadedImages =  await  preloadImages(products)
+
+
+
+    gameStateManager.setConfig({
+      levels: levels,
+      maxLevels
+    })
+
+    PresentsModule.initialize(
+        {
+          data,
+          currentLevel: gameStateManager.getCurrentLevel.bind(gameStateManager),
+          presentRegistry: presentRegistry,
+          levels,
+          preloadedImages
+        }
+    );
+
+    const { initialInvaders, initialGridSize  } = gameStateManager.getInitialData()
+
+    initializeGame({
+      numberOfInvaders: initialInvaders,
+      gridSize: initialGridSize,
+    });
+
+
+  } catch (error) {
+    console.error("Error loading game data:", error);
+  }
+});
+
+
+const { startPresents, resetPresents } = PresentsModule;
+
+
+// ------------------- CONSTANTS  -------------------
+
+const isAutoShotMode = MODE === availableShootingModes.AUTO;
+const isKeyPressMode = MODE === availableShootingModes.KEY_PRESS;
 
 // ------------------- INTERVALS & EVENTS -------------------
 
@@ -182,10 +183,6 @@ const updateLives = () => {
 
 // ------------------- GAME LOOP -------------------
 
-
-
-
-
 const cleanUpIntervals = () => {
   clearInterval(invadersShootingIntervalId);
   resetPresents()
@@ -206,8 +203,6 @@ const resumeScene = () => {
 
   startPresents()
 };
-
-
 
 const startLevelTransition = async () => {
   gameStateManager.updateCurrentLevel();
@@ -336,6 +331,8 @@ function draw() {
     cleanUpProjectTile(projectile, index, projectTiles);
     projectile.update();
   });
+
+
 
   invadersProjectTile.forEach((projectile, index) => {
     if(checkIfIsOffScreen(projectile.position)){
