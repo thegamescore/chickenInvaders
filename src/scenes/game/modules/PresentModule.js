@@ -10,7 +10,7 @@ export const PresentsModule = (() => {
 
 
     const initializePresents = ({
-                                    data, currentLevel, presentRegistry, levels, imageUrl
+                                    data, currentLevel, presentRegistry, levels, image
                                 }) => {
 
 
@@ -38,7 +38,7 @@ export const PresentsModule = (() => {
                     y: 50,
                 },
                 velocity: { x: 0, y: 0 },
-                imageUrl,
+                image,
             }),
             onSpawn: presentRegistry.appendPresent.bind(presentRegistry),
         });

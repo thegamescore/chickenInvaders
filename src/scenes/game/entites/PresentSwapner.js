@@ -12,10 +12,6 @@ export class PresentsSpawner {
     }
 
     start() {
-
-
-
-
         this.intervalId = setRandomInterval(() => {
             const currentLevel = this.getCurrentLevel();
             const levelData = this.levelDataMap[currentLevel];
@@ -26,8 +22,6 @@ export class PresentsSpawner {
 
             const present = this.createPresent();
 
-
-
             this.onSpawn(present);
         }, 1000, 2000);
     }
@@ -36,8 +30,6 @@ export class PresentsSpawner {
         if(this.intervalId){
             this.intervalId.clear()
         }
-
-
     }
 
     reset() {

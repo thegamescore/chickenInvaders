@@ -73,7 +73,7 @@ window.addEventListener("load", async () => {
           currentLevel: gameStateManager.getCurrentLevel.bind(gameStateManager),
           presentRegistry: presentRegistry,
           levels: LEVELS,
-          imageUrl: preloadedImages?.[0]?.src
+          image: preloadedImages?.[0]
         }
     );
   } catch (error) {

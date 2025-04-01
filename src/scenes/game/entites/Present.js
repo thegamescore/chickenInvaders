@@ -2,21 +2,19 @@ import {ctx} from "../canvas.js";
 
 
 export class Present {
-    constructor({ width, height, position, velocity, imageUrl }) {
+    constructor({ width, height, position, velocity, image }) {
         this.width = width;
         this.height = height;
         this.position = position;
 
         this.velocity = velocity;
-        this.image = new Image();
+        this.image = null
 
-        this.addImageUrl(imageUrl);
+        this.addImageUrl(image);
     }
 
-    addImageUrl(imageUrl) {
-        if (this.image) {
-            this.image.src = imageUrl;
-        }
+    addImageUrl(image) {
+        this.image = image;
     }
 
     draw() {
