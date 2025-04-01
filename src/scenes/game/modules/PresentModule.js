@@ -1,5 +1,5 @@
 import {PresentsSpawner} from "../entites/PresentSwapner.js";
-import {LEVELS} from "../utils/gameConfig.js";
+
 import {Present} from "../entites/Present.js";
 import {canvas} from "../canvas.js";
 import {assert } from "../../..//helpers/helpers.js"

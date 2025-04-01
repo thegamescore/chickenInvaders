@@ -1,11 +1,22 @@
 import { gameStates, MAX_LEVEL_REACHED } from "../../utils/const.js";
 
 export class GameStateManager {
-  constructor({ maxLevel }) {
+  constructor() {
     this.state = gameStates.IDLE;
     this.currentLevel = 0;
     this.listeners = new Set();
-    this.maxLevel = maxLevel;
+    this.config = {
+      levels: null,
+      maxLevel: null
+    }
+  }
+
+  setConfig(config){
+    this.config = config
+  }
+
+  getCurrentLevelData(){
+    return this.config.levels[this.currentLevel]
   }
 
   getState() {
@@ -13,7 +24,7 @@ export class GameStateManager {
   }
 
   getCurrentLevel() {
-    if (this.currentLevel === this.maxLevel) {
+    if (this.currentLevel === this.config.maxLevel) {
       return MAX_LEVEL_REACHED;
     }
 
@@ -21,7 +32,7 @@ export class GameStateManager {
   }
 
   updateCurrentLevel() {
-    if (this.currentLevel === this.maxLevel) {
+    if (this.currentLevel === this.config.maxLevel) {
       return MAX_LEVEL_REACHED;
     }
 

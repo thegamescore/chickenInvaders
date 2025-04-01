@@ -5,7 +5,6 @@ import {Live} from "./entites/Live.js";
 import {
   INTERVAL_BETWEEN_SHOOTING_IN_MS,
   LEVEL_TRANSITION_DELAY_MS,
-  LEVELS,
   MODE,
   SHIP_HEIGHT,
   SHIP_WIDTH,
@@ -24,7 +23,7 @@ import {
 import {availableShootingModes, gameStates, keyMap, MAX_LEVEL_REACHED, pointEvents,} from "../../utils/const.js";
 import {keyPressedMap, updateKeyState, updateShipPosition,} from "./controls.js";
 
-import {assert, delay,} from "../../helpers/helpers.js";
+import {assert, delay, preloadImages,} from "../../helpers/helpers.js";
 
 
 import {drawStars, initializeStars, updateStars} from "./stars.js";
@@ -45,37 +44,47 @@ import {PresentsRegistry} from "./entites/PresentsRegistry.js";
 import {getData} from "./configData.js";
 import {PresentsModule} from "./modules/PresentModule.js";
 
+
+
+
+
+
+const gameStateManager = new GameStateManager();
+
 const presentRegistry = new PresentsRegistry()
-
-
-const preloadImage = src =>
-    new Promise((resolve, reject) => {
-      const image = new Image()
-      image.onload = () => resolve(image);
-      image.onerror = reject
-      image.src = src
-    })
-
-
-const preloadImages = async (products) => {
-  return await Promise.all(products.map(x => preloadImage(x.productImage)))
-}
 
 window.addEventListener("load", async () => {
   try {
     const data = await getData();
 
-    const preloadedImages =  await  preloadImages(data.products)
+    const { products, levels, maxLevel } = data;
+
+    const preloadedImages =  await  preloadImages(products)
+
+    gameStateManager.setConfig({
+      levels: levels,
+      maxLevel
+    })
 
     PresentsModule.initialize(
         {
           data,
           currentLevel: gameStateManager.getCurrentLevel.bind(gameStateManager),
           presentRegistry: presentRegistry,
-          levels: LEVELS,
-          image: preloadedImages?.[0]
+          levels,
+          imageUrl: preloadedImages?.[0]
         }
     );
+
+    const initialInvaders = levels[0].numberOfInvaders
+    const initialGridSize = levels[0].gridSize
+
+    initializeGame({
+      numberOfInvaders: initialInvaders,
+      gridSize: initialGridSize,
+    });
+
+
   } catch (error) {
     console.error("Error loading game data:", error);
   }
@@ -112,13 +121,7 @@ const initializeGame = ({ numberOfInvaders, gridSize }) => {
   initializeStars();
 };
 
-const initialInvaders = LEVELS[0].numberOfInvaders
-const initialGridSize = LEVELS[0].gridSize
 
-initializeGame({
-  numberOfInvaders: initialInvaders,
-  gridSize: initialGridSize,
-});
 
 // ------------------- INTERVALS & EVENTS -------------------
 
@@ -184,17 +187,9 @@ const updateLives = () => {
 
 // ------------------- GAME LOOP -------------------
 
-const maxLevel = 4;
 
-assert(
-  maxLevel === Object.keys(LEVELS).length,
-  "Please, specify all levels. Max levels and LEVELS from" +
-    "config must be the same",
-);
 
-const gameStateManager = new GameStateManager({
-  maxLevel,
-});
+
 
 const cleanUpIntervals = () => {
   clearInterval(invadersShootingIntervalId);
@@ -223,7 +218,7 @@ const startLevelTransition = async () => {
   gameStateManager.updateCurrentLevel();
 
   const currentLevel = gameStateManager.getCurrentLevel();
-  const levelData = LEVELS[currentLevel];
+  const levelData = gameStateManager.getCurrentLevelData()
 
   if (currentLevel === MAX_LEVEL_REACHED) {
     gameStateManager.setState(gameStates.WIN);

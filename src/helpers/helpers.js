@@ -35,3 +35,16 @@ export const setRandomInterval = (intervalFunction, minDelay, maxDelay) => {
     clear() { clearTimeout(timeout) },
   };
 };
+
+const preloadImage = src =>
+    new Promise((resolve, reject) => {
+      const image = new Image()
+      image.onload = () => resolve(image);
+      image.onerror = reject
+      image.src = src
+    })
+
+
+export const preloadImages = async (products) => {
+  return await Promise.all(products.map(x => preloadImage(x.productImage)))
+}
