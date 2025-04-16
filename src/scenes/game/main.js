@@ -23,7 +23,7 @@ import {
 import {availableShootingModes, gameStates, keyMap, MAX_LEVEL_REACHED, pointEvents,} from "../../utils/const.js";
 import {keyPressedMap, updateKeyState, updateShipPosition,} from "./controls.js";
 
-import {assert, delay, getRandomArrElement, preloadImages,} from "../../helpers/helpers.js";
+import {assert, delay, preloadImages,} from "../../helpers/helpers.js";
 
 import {drawStars, initializeStars, updateStars} from "./stars.js";
 import {createIsOffScreen, isElementCollidingWithShip, isProjectTileCollidingWithInvader,} from "./collisions.js";

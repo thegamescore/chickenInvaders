@@ -14,8 +14,8 @@ export function getGameData() {
                 ],
                 levels: {
                     0: {
-                        numberOfInvaders: 1,
-                        gridSize: 1,
+                        numberOfInvaders: 25,
+                        gridSize: 25,
                         numberOfPresentsPerLevel: 25
                     },
                     1: {
