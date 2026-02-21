@@ -211,6 +211,7 @@ export const playDeathSound = () => {
 export const playExplosionSound = () => {
   const ctx = getCtx();
   if (ctx.state === 'suspended') return;
+
   const bufferSize = Math.floor(ctx.sampleRate * 0.15);
   const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
   const data = buffer.getChannelData(0);
@@ -223,5 +224,76 @@ export const playExplosionSound = () => {
   source.connect(gain);
   gain.connect(ctx.destination);
   gain.gain.setValueAtTime(0.22, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.16);
   source.start();
+
+  const thumpOsc = ctx.createOscillator();
+  const thumpGain = ctx.createGain();
+  thumpOsc.connect(thumpGain);
+  thumpGain.connect(ctx.destination);
+  thumpOsc.type = "triangle";
+  thumpOsc.frequency.setValueAtTime(130, ctx.currentTime);
+  thumpOsc.frequency.exponentialRampToValueAtTime(58, ctx.currentTime + 0.08);
+  thumpGain.gain.setValueAtTime(0.1, ctx.currentTime);
+  thumpGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.1);
+  thumpOsc.start(ctx.currentTime);
+  thumpOsc.stop(ctx.currentTime + 0.11);
+};
+
+export const playHitConfirmSound = () => {
+  const ctx = getCtx();
+  if (ctx.state === "suspended") return;
+
+  const tone = ctx.createOscillator();
+  const toneGain = ctx.createGain();
+  tone.connect(toneGain);
+  toneGain.connect(ctx.destination);
+  tone.type = "square";
+  tone.frequency.setValueAtTime(920, ctx.currentTime);
+  tone.frequency.exponentialRampToValueAtTime(1380, ctx.currentTime + 0.045);
+  toneGain.gain.setValueAtTime(0.12, ctx.currentTime);
+  toneGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.06);
+  tone.start(ctx.currentTime);
+  tone.stop(ctx.currentTime + 0.07);
+
+  const accent = ctx.createOscillator();
+  const accentGain = ctx.createGain();
+  accent.connect(accentGain);
+  accentGain.connect(ctx.destination);
+  accent.type = "triangle";
+  accent.frequency.setValueAtTime(430, ctx.currentTime);
+  accent.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 0.08);
+  accentGain.gain.setValueAtTime(0.08, ctx.currentTime);
+  accentGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.1);
+  accent.start(ctx.currentTime);
+  accent.stop(ctx.currentTime + 0.11);
+};
+
+export const playShipHitSound = () => {
+  const ctx = getCtx();
+  if (ctx.state === "suspended") return;
+
+  const buzz = ctx.createOscillator();
+  const buzzGain = ctx.createGain();
+  buzz.connect(buzzGain);
+  buzzGain.connect(ctx.destination);
+  buzz.type = "sawtooth";
+  buzz.frequency.setValueAtTime(190, ctx.currentTime);
+  buzz.frequency.exponentialRampToValueAtTime(62, ctx.currentTime + 0.2);
+  buzzGain.gain.setValueAtTime(0.2, ctx.currentTime);
+  buzzGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.22);
+  buzz.start(ctx.currentTime);
+  buzz.stop(ctx.currentTime + 0.24);
+
+  const sting = ctx.createOscillator();
+  const stingGain = ctx.createGain();
+  sting.connect(stingGain);
+  stingGain.connect(ctx.destination);
+  sting.type = "square";
+  sting.frequency.setValueAtTime(640, ctx.currentTime);
+  sting.frequency.exponentialRampToValueAtTime(140, ctx.currentTime + 0.15);
+  stingGain.gain.setValueAtTime(0.11, ctx.currentTime);
+  stingGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.16);
+  sting.start(ctx.currentTime);
+  sting.stop(ctx.currentTime + 0.17);
 };

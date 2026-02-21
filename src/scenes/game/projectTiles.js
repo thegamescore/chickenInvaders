@@ -2,7 +2,7 @@ import {Projectile} from "./entites/Projectile.js";
 import {INVADER_HEIGHT, INVADER_WIDTH, PROJECT_TILE_DIMENSIONS, PROJECT_TILE_SPEED} from "./utils/gameConfig.js";
 import {getRandomArrElement} from "../../helpers/helpers.js";
 import {InvaderProjectTile} from "./entites/InvaderProjectTile.js";
-import ProjectTileInvaderImagePng from "../../assets/projecttile-invader.png";
+import ProjectTileInvaderImagePng from "../../assets/projectile-invader.svg";
 import {EntityRegistry} from "./entites/EntityRegistry.js";
 import {playInvaderShootSound, playShootSound} from "./audio.js";
 

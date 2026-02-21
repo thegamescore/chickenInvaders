@@ -27,8 +27,10 @@ import {keyPressedMap, updateKeyState, updateShipPosition,} from "./controls.js"
 import {assert, delay, preloadImages,} from "../../helpers/helpers.js";
 
 import {drawStars, initializeStars, updateStars} from "./stars.js";
-import {spawnDeathEffect, spawnShipDamageEffect, updateAndDrawDeathEffects} from "./deathEffects.js";
+import {spawnDeathEffect, spawnHitEffect, spawnShipDamageEffect, updateAndDrawDeathEffects} from "./deathEffects.js";
+import {spawnDamageIndicator, updateAndDrawDamageIndicators} from "./damageIndicators.js";
 import {createIsOffScreen, isElementCollidingWithShip, isProjectTileCollidingWithInvader,} from "./collisions.js";
+import {applyScreenShake, triggerScreenShake, updateScreenShake} from "./screenShake.js";
 
 import {canvas, canvasHeight, canvasWidth, ctx} from "./canvas.js";
 import {
@@ -44,7 +46,17 @@ import {Points} from "./entites/Points.js";
 import {PresentsRegistry} from "./entites/PresentsRegistry.js";
 import {getData} from "./configData.js";
 import {PresentsModule} from "./modules/PresentModule.js";
-import {pauseMusic, playExplosionSound, playLevelTransitionSound, playPresentCatchSound, resumeMusic, startMusic, stopMusic} from "./audio.js";
+import {
+  pauseMusic,
+  playExplosionSound,
+  playHitConfirmSound,
+  playLevelTransitionSound,
+  playPresentCatchSound,
+  playShipHitSound,
+  resumeMusic,
+  startMusic,
+  stopMusic
+} from "./audio.js";
 import "./touchControls.js";
 
 
@@ -288,16 +300,21 @@ function draw() {
   const numberOfLives = updateLives();
   const invadersOnScreen = invaders.invaders;
 
+  updateScreenShake();
+  ctx.save();
+  applyScreenShake(ctx);
+
   updateStars();
   drawStars();
   updateAndDrawDeathEffects();
-
-  points.drawPoints(ctx, canvasWidth);
+  updateAndDrawDamageIndicators();
 
   ship.updateShip();
   updateShipPosition(ship);
 
   if (GAME_STATE !== gameStates.RUNNING) {
+    ctx.restore();
+    points.drawPoints(ctx, canvasWidth);
     return;
   }
 
@@ -330,10 +347,24 @@ function draw() {
       if (isProjectTileCollidingWithInvader(projectile, invader)) {
         points.updatePoints(pointEvents.KILL_PROJECTILE);
         playExplosionSound();
+        playHitConfirmSound();
         spawnDeathEffect(
           invader.position.x + invader.width / 2,
           invader.position.y + invader.height / 2,
         );
+        spawnHitEffect(
+          invader.position.x + invader.width / 2,
+          invader.position.y + invader.height / 2,
+        );
+        spawnDamageIndicator({
+          x: invader.position.x + invader.width / 2,
+          y: invader.position.y - 8,
+          text: "+5",
+          color: "#8ffaff",
+          ttl: 26,
+          velocityY: -1.5,
+        });
+        triggerScreenShake({ intensity: 4.5, duration: 7 });
 
         setTimeout(() => {
           invadersOnScreen.splice(invaderIndex, 1);
@@ -370,15 +401,28 @@ function draw() {
       const isDamaged = ship.destroy();
 
       if (isDamaged) {
+        playShipHitSound();
         spawnShipDamageEffect(
           ship.position.x + ship.width / 2,
           ship.position.y + ship.height / 2,
         );
+        spawnDamageIndicator({
+          x: ship.position.x + ship.width / 2,
+          y: ship.position.y - 12,
+          text: "-1 HP",
+          color: "#ff7b7b",
+          ttl: 34,
+          velocityY: -1.1,
+        });
+        triggerScreenShake({ intensity: 9, duration: 14 });
       }
     }
 
     projectile.update();
   });
+
+  ctx.restore();
+  points.drawPoints(ctx, canvasWidth);
 }
 
 draw();

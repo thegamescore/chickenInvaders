@@ -1,4 +1,4 @@
-import ProjectileImagePng from "../../../assets/projectile.png";
+import ProjectileImagePng from "../../../assets/projectile-ship.svg";
 import { ctx } from "../canvas.js";
 
 export class Projectile {

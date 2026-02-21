@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <radialGradient id="ship_core" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(32 18) rotate(90) scale(30 18)">
+      <stop offset="0" stop-color="#F6FFFF" />
+      <stop offset="0.35" stop-color="#7DF7FF" />
+      <stop offset="1" stop-color="#00A8FF" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="ship_beam" x1="32" y1="6" x2="32" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F3FEFF" />
+      <stop offset="0.4" stop-color="#66EEFF" />
+      <stop offset="1" stop-color="#0089E8" stop-opacity="0.18" />
+    </linearGradient>
+    <filter id="ship_blur" x="-18" y="-18" width="100" height="100" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="4" />
+    </filter>
+  </defs>
+
+  <ellipse cx="32" cy="24" rx="15" ry="24" fill="url(#ship_core)" filter="url(#ship_blur)" />
+  <path d="M32 6L38 20L32 58L26 20L32 6Z" fill="url(#ship_beam)" />
+  <path d="M32 10L36 20L32 48L28 20L32 10Z" fill="#E8FFFF" />
+  <path d="M32 4L36 14L32 18L28 14L32 4Z" fill="#FFFFFF" />
+  <path d="M24 29L32 20L40 29L32 42L24 29Z" fill="#29D6FF" fill-opacity="0.5" />
+</svg>

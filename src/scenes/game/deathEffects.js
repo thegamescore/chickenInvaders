@@ -1,6 +1,7 @@
 import { ctx } from "./canvas.js";
 
 const effects = [];
+const hitFlashes = [];
 
 const PARTICLE_COUNT = 7;
 const DURATION = 45; // frames
@@ -51,6 +52,30 @@ export function spawnDeathEffect(x, y) {
   });
 }
 
+export function spawnHitEffect(x, y) {
+  createEffect({
+    x,
+    y,
+    particleCount: 14,
+    duration: 28,
+    colors: ["#e8ffff", "#77f7ff", "#ffffff", "#ffd166"],
+    minSpeed: 2,
+    maxSpeed: 5.6,
+    minSize: 1.6,
+    maxSize: 3.8,
+    gravity: 0.03,
+  });
+
+  hitFlashes.push({
+    x,
+    y,
+    frame: 0,
+    duration: 12,
+    startRadius: 7,
+    endRadius: 40,
+  });
+}
+
 export function spawnShipDamageEffect(x, y) {
   createEffect({
     x,
@@ -67,6 +92,37 @@ export function spawnShipDamageEffect(x, y) {
 }
 
 export function updateAndDrawDeathEffects() {
+  for (let i = hitFlashes.length - 1; i >= 0; i--) {
+    const flash = hitFlashes[i];
+    flash.frame += 1;
+
+    if (flash.frame >= flash.duration) {
+      hitFlashes.splice(i, 1);
+      continue;
+    }
+
+    const progress = flash.frame / flash.duration;
+    const alpha = 1 - progress;
+    const radius = flash.startRadius + (flash.endRadius - flash.startRadius) * progress;
+
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.55;
+    ctx.fillStyle = "#8ffaff";
+    ctx.beginPath();
+    ctx.arc(flash.x, flash.y, radius * 0.28, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.65;
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.arc(flash.x, flash.y, radius, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
   for (let i = effects.length - 1; i >= 0; i--) {
     const effect = effects[i];
     effect.frame++;
