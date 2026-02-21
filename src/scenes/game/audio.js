@@ -126,6 +126,23 @@ export const playInvaderShootSound = () => {
   osc.stop(ctx.currentTime + 0.2);
 };
 
+export const playInvaderChargeSound = () => {
+  const ctx = getCtx();
+  if (ctx.state === "suspended") return;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.type = "triangle";
+  osc.frequency.setValueAtTime(180, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(520, ctx.currentTime + 0.18);
+  gain.gain.setValueAtTime(0.08, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.2);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.21);
+};
+
 export const playLevelTransitionSound = () => {
   const ctx = getCtx();
   if (ctx.state === 'suspended') return;

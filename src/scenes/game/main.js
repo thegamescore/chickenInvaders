@@ -18,7 +18,8 @@ import {
   projectTiles,
   removeInvadersProjectTile,
   removeProjectile,
-  resetEntityRegistry
+  resetEntityRegistry,
+  updateAndDrawInvaderShotTelegraphs,
 } from './projectTiles.js'
 
 import {availableShootingModes, gameStates, keyMap, MAX_LEVEL_REACHED, pointEvents,} from "../../utils/const.js";
@@ -339,13 +340,14 @@ function draw() {
   })
 
   invaders.update();
+  updateAndDrawInvaderShotTelegraphs();
 
   invadersOnScreen.forEach((invader, invaderIndex) => {
     invader.draw();
 
     projectTiles.forEach((projectile, projectileIndex) => {
       if (isProjectTileCollidingWithInvader(projectile, invader)) {
-        points.updatePoints(pointEvents.KILL_PROJECTILE);
+        const { earnedPoints, comboMultiplier } = points.updatePoints(pointEvents.KILL_PROJECTILE);
         playExplosionSound();
         playHitConfirmSound();
         spawnDeathEffect(
@@ -359,7 +361,7 @@ function draw() {
         spawnDamageIndicator({
           x: invader.position.x + invader.width / 2,
           y: invader.position.y - 8,
-          text: "+5",
+          text: comboMultiplier > 1 ? `+${earnedPoints} x${comboMultiplier}` : `+${earnedPoints}`,
           color: "#8ffaff",
           ttl: 26,
           velocityY: -1.5,
