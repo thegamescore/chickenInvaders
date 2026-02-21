@@ -320,7 +320,7 @@ function draw() {
   invaders.update();
 
   invadersOnScreen.forEach((invader, invaderIndex) => {
-    invader.updateInvader({ x: invaders.velocity.x, y: invaders.velocity.y });
+    invader.draw();
 
     projectTiles.forEach((projectile, projectileIndex) => {
       if (isProjectTileCollidingWithInvader(projectile, invader)) {
@@ -330,6 +330,7 @@ function draw() {
         setTimeout(() => {
           invadersOnScreen.splice(invaderIndex, 1);
           projectTiles.splice(projectileIndex, 1);
+          invaders.recompactRows();
         }, 0);
       }
     });

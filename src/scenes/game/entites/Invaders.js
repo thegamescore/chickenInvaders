@@ -9,16 +9,13 @@ import {
 
 import { canvasWidth } from "../canvas.js";
 
+const COMPACT_SPEED = 0.03;
+
 export class Invaders {
   constructor() {
     this.invaders = [];
 
-    this.gridWidth = 0;
-
-    this.position = {
-      x: 0,
-      y: 0,
-    };
+    this.groupOffsetX = 0;
 
     this.velocity = {
       x: 0,
@@ -29,25 +26,25 @@ export class Invaders {
   reset() {
     this.invaders = [];
 
-    this.gridWidth = 0;
-
-    this.position = { x: 0, y: 0 };
+    this.groupOffsetX = 0;
 
     this.velocity = { x: 0, y: 0 };
   }
 
   create({ numberOfInvaders, gridSize }) {
-    this.gridWidth = gridSize * INVADERS_GAP_X;
+    this.groupOffsetX = 200;
 
     for (let i = 0; i < numberOfInvaders; i++) {
       let row = Math.floor(i / gridSize);
       let col = i % gridSize;
 
+      const localX = col * INVADERS_GAP_X;
+
       const invader = new Invader({
         width: INVADER_WIDTH,
         height: INVADER_HEIGHT,
         position: {
-          x: 200 + col * INVADERS_GAP_X,
+          x: this.groupOffsetX + localX,
           y: 150 + row * INVADERS_GAP_Y,
         },
         velocity: {
@@ -56,8 +53,30 @@ export class Invaders {
         },
       });
 
+      invader.row = row;
+      invader.col = col;
+      invader.localX = localX;
+      invader.targetLocalX = localX;
+
       this.invaders.push(invader);
     }
+  }
+
+  // After a kill, recalculate target positions so surviving invaders
+  // in each row slide together to fill the gap.
+  recompactRows() {
+    const rowMap = new Map();
+    this.invaders.forEach((inv) => {
+      if (!rowMap.has(inv.row)) rowMap.set(inv.row, []);
+      rowMap.get(inv.row).push(inv);
+    });
+
+    rowMap.forEach((rowInvaders) => {
+      rowInvaders.sort((a, b) => a.col - b.col);
+      rowInvaders.forEach((inv, i) => {
+        inv.targetLocalX = i * INVADERS_GAP_X;
+      });
+    });
   }
 
   initialize({ numberOfInvaders, gridSize }) {
@@ -80,13 +99,25 @@ export class Invaders {
 
     if (this.invaders.length === 0) return;
 
-    const leftEdge = Math.min(...this.invaders.map((inv) => inv.position.x));
-    const rightEdge = Math.max(...this.invaders.map((inv) => inv.position.x + inv.width));
+    // Wall bounce based on actual current positions
+    const leftLocal = Math.min(...this.invaders.map((inv) => inv.localX));
+    const rightLocal = Math.max(...this.invaders.map((inv) => inv.localX + inv.width));
 
-    if (leftEdge + this.velocity.x <= 0) {
+    const projectedLeft = this.groupOffsetX + leftLocal + this.velocity.x;
+    const projectedRight = this.groupOffsetX + rightLocal + this.velocity.x;
+
+    if (projectedLeft <= 0) {
       this.velocity.x = INVADERS_VELOCITY;
-    } else if (rightEdge + this.velocity.x >= canvasWidth) {
+    } else if (projectedRight >= canvasWidth) {
       this.velocity.x = -INVADERS_VELOCITY;
     }
+
+    this.groupOffsetX += this.velocity.x;
+
+    // Slide each invader toward its compact target while moving with the group
+    this.invaders.forEach((inv) => {
+      inv.localX += (inv.targetLocalX - inv.localX) * COMPACT_SPEED;
+      inv.position.x = this.groupOffsetX + inv.localX;
+    });
   }
 }
