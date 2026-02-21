@@ -4,6 +4,7 @@ import {getRandomArrElement} from "../../helpers/helpers.js";
 import {InvaderProjectTile} from "./entites/InvaderProjectTile.js";
 import ProjectTileInvaderImagePng from "../../assets/projecttile-invader.png";
 import {EntityRegistry} from "./entites/EntityRegistry.js";
+import {playInvaderShootSound, playShootSound} from "./audio.js";
 
 
 const entityRegistry = new EntityRegistry()
@@ -20,6 +21,7 @@ export const removeInvadersProjectTile = (index) => {
 }
 
 export const appendProjectTile = ({ship}) => () => {
+    playShootSound();
     entityRegistry.appendProjectTile(
         new Projectile({
             position: { x: ship.position.x + ship.width / 2, y: ship.position.y },
@@ -35,6 +37,7 @@ export const appendInvaderProjectTile = ({invaders, ship}) => ()  => {
 
     if (!randomInvader) return;
 
+    playInvaderShootSound();
     entityRegistry.appendInvader(
         new InvaderProjectTile({
             startPosition: {

@@ -1,11 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" style="color-scheme: dark">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chicken Invaders</title>
     <link rel="stylesheet" href="./src/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
       rel="stylesheet"
@@ -14,17 +16,18 @@
   <body>
     <div id="start-screen">
       <div class="start-screen-content">
-        <h1>Chicken Invaders</h1>
-        <div>This is example description of company</div>
+        <h1 class="game-title">Chicken<br>Invaders</h1>
+        <p class="game-subtitle">◄ Space Shooter ►</p>
         <button id="start-button" class="retro-button" type="button" disabled>Start Game</button>
-        <div id="loading-assets-info" class="loading-assets">
-          Loading assets...
+        <div id="loading-assets-info" class="loading-assets" role="status" aria-live="polite">
+          ▌Loading assets…▐
         </div>
       </div>
     </div>
     <div id="pause-screen" class="pause-screen pause-screen-hidden">
       <div class="pause-screen-content">
-        <button id="unpause-button" class="retro-button">Unpause button</button>
+        <h2 class="pause-title">— Paused —</h2>
+        <button id="unpause-button" class="retro-button" type="button">Resume</button>
       </div>
     </div>
     <div
@@ -35,19 +38,21 @@
       aria-modal="true"
     >
       <div class="game-over-screen-content">
-        <p class="game-over-screen-title">Game over</p>
-        <p>Your score: <span id="game-over-score">2</span></p>
-        <button id="game-over-retry-button" class="retro-button game-over-retry-button">Try again</button>
+        <h2 id="game-over-title" class="game-over-screen-title">Game Over</h2>
+        <p class="score-label">— Final Score —</p>
+        <p class="final-score"><span id="game-over-score">0</span></p>
+        <button id="game-over-retry-button" class="retro-button game-over-retry-button" type="button">Try Again</button>
       </div>
     </div>
     <div id="level-transition-text" class="level-transition">
-      <span> Level </span>
-      <span id="level-transition-counter" class="level-transition-counter">
-      </span>
+      <span>Level </span>
+      <span id="level-transition-counter" class="level-transition-counter"></span>
     </div>
+    <div class="crt-scanlines" aria-hidden="true"></div>
     <canvas
       id="chicken-invaders-canvas"
       class="chicken-invaders-canvas"
+      aria-label="Chicken Invaders game"
     ></canvas>
     <script type="module" src="./src/index.js"></script>
   </body>

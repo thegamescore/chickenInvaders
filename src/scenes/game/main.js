@@ -42,7 +42,15 @@ import {Points} from "./entites/Points.js";
 import {PresentsRegistry} from "./entites/PresentsRegistry.js";
 import {getData} from "./configData.js";
 import {PresentsModule} from "./modules/PresentModule.js";
+import {pauseMusic, playExplosionSound, playLevelTransitionSound, playPresentCatchSound, resumeMusic, startMusic, stopMusic} from "./audio.js";
 
+
+// ------------------- BACKGROUND -------------------
+
+const bgGradient = ctx.createLinearGradient(0, 0, 0, canvasHeight);
+bgGradient.addColorStop(0, "#02020f");
+bgGradient.addColorStop(0.5, "#050518");
+bgGradient.addColorStop(1, "#000008");
 
 // ------------------- INITIALIZATION  -------------------
 
@@ -217,7 +225,11 @@ const startLevelTransition = async () => {
 
   assert(levelData, "Current level not specified");
 
+  cleanUpIntervals();
+
   dispatchLevelTransition(currentLevel);
+  stopMusic();
+  playLevelTransitionSound();
 
   await delay(LEVEL_TRANSITION_DELAY_MS);
 
@@ -233,6 +245,7 @@ const startLevelTransition = async () => {
   });
 
   gameStateManager.setState(gameStates.RUNNING);
+  startMusic();
 };
 
 gameStateManager.onChange((newState) => {
@@ -244,6 +257,7 @@ gameStateManager.onChange((newState) => {
     stopInvaderShootingInterval();
     pauseGame();
     cleanUpScene();
+    pauseMusic();
   }
 
   if (newState === gameStates.GAME_OVER) {
@@ -251,6 +265,7 @@ gameStateManager.onChange((newState) => {
     setGameOver({
       score: points.getTotalPoints(),
     });
+    stopMusic();
   }
 
   if (newState === gameStates.LEVEL_TRANSITION) {
@@ -264,8 +279,8 @@ function draw() {
   requestAnimationFrame(draw);
 
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = bgGradient;
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
   const numberOfLives = updateLives();
   const invadersOnScreen = invaders.invaders;
@@ -310,6 +325,7 @@ function draw() {
     projectTiles.forEach((projectile, projectileIndex) => {
       if (isProjectTileCollidingWithInvader(projectile, invader)) {
         points.updatePoints(pointEvents.KILL_PROJECTILE);
+        playExplosionSound();
 
         setTimeout(() => {
           invadersOnScreen.splice(invaderIndex, 1);
@@ -323,6 +339,7 @@ function draw() {
     if (isElementCollidingWithShip(present, ship)) {
       presentRegistry.removePresent(index)
       points.updatePoints(pointEvents.CATCH_PRESENT);
+      playPresentCatchSound();
     }
   }))
 
@@ -376,15 +393,18 @@ document.addEventListener("visibilitychange", () => {
 });
 
 window.addEventListener(gameStartEventName, () => {
+  startMusic();
   gameStateManager.setState(gameStates.RUNNING);
 });
 
 window.addEventListener(unpauseGameEventName, () => {
+  resumeMusic();
   gameStateManager.setState(gameStates.RUNNING);
 });
 
 window.addEventListener(retryGameEventName, () => {
-  resetGameBackToInitial()
+  resetGameBackToInitial();
+  startMusic();
   gameStateManager.setState(gameStates.RUNNING);
 })
 

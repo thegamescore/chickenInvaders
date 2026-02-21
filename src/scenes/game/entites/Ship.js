@@ -95,7 +95,7 @@ export class Ship {
       );
 
       if (this.isFlashing) {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.5)"; // Red overlay with transparency
+        ctx.fillStyle = "rgba(255, 40, 40, 0.45)";
         ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
       }
 
