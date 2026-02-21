@@ -174,6 +174,40 @@ export const playPresentCatchSound = () => {
   });
 };
 
+export const playDeathSound = () => {
+  const ctx = getCtx();
+  if (ctx.state === 'suspended') return;
+
+  // Loud noise burst — longer decay than invader explosion
+  const bufferSize = Math.floor(ctx.sampleRate * 0.55);
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 1.4);
+  }
+  const noise = ctx.createBufferSource();
+  noise.buffer = buffer;
+  const noiseGain = ctx.createGain();
+  noise.connect(noiseGain);
+  noiseGain.connect(ctx.destination);
+  noiseGain.gain.setValueAtTime(0.45, ctx.currentTime);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.55);
+  noise.start();
+
+  // Descending tone sweep — 440 Hz down to 50 Hz (ship "powering down")
+  const osc = ctx.createOscillator();
+  const oscGain = ctx.createGain();
+  osc.connect(oscGain);
+  oscGain.connect(ctx.destination);
+  osc.type = 'square';
+  osc.frequency.setValueAtTime(440, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.45);
+  oscGain.gain.setValueAtTime(0.18, ctx.currentTime);
+  oscGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.45);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.5);
+};
+
 export const playExplosionSound = () => {
   const ctx = getCtx();
   if (ctx.state === 'suspended') return;

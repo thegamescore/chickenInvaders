@@ -7,6 +7,7 @@ import {
   LEVEL_TRANSITION_DELAY_MS,
   MODE,
   SHIP_HEIGHT,
+  SHIP_START_BOTTOM_OFFSET,
   SHIP_WIDTH,
 } from "./utils/gameConfig.js";
 
@@ -26,7 +27,7 @@ import {keyPressedMap, updateKeyState, updateShipPosition,} from "./controls.js"
 import {assert, delay, preloadImages,} from "../../helpers/helpers.js";
 
 import {drawStars, initializeStars, updateStars} from "./stars.js";
-import {spawnDeathEffect, updateAndDrawDeathEffects} from "./deathEffects.js";
+import {spawnDeathEffect, spawnShipDamageEffect, updateAndDrawDeathEffects} from "./deathEffects.js";
 import {createIsOffScreen, isElementCollidingWithShip, isProjectTileCollidingWithInvader,} from "./collisions.js";
 
 import {canvas, canvasHeight, canvasWidth, ctx} from "./canvas.js";
@@ -44,6 +45,7 @@ import {PresentsRegistry} from "./entites/PresentsRegistry.js";
 import {getData} from "./configData.js";
 import {PresentsModule} from "./modules/PresentModule.js";
 import {pauseMusic, playExplosionSound, playLevelTransitionSound, playPresentCatchSound, resumeMusic, startMusic, stopMusic} from "./audio.js";
+import "./touchControls.js";
 
 
 // ------------------- BACKGROUND -------------------
@@ -67,9 +69,9 @@ const points = new Points({
 const ship = new Ship({
   width: SHIP_WIDTH,
   height: SHIP_HEIGHT,
-  position: { x: canvas.width / 2, y: canvas.height - 150 },
+  position: { x: canvas.width / 2, y: canvas.height - SHIP_START_BOTTOM_OFFSET },
   velocity: { x: 0, y: 0 },
-  numberOfLives: 1,
+  numberOfLives: 3,
 });
 
 
@@ -168,10 +170,10 @@ window.addEventListener("keyup", (event) => updateKeyState(event, false));
 
 const checkIfIsOffScreen = createIsOffScreen(canvasWidth, canvasHeight);
 
-const cleanUpProjectTile = (projectile, index, list) => {
+const cleanUpProjectTile = (projectile, index) => {
   const isOffScreen = checkIfIsOffScreen(projectile.position)
 
-  if (isOffScreen) removeProjectile(list, index);
+  if (isOffScreen) removeProjectile(index);
 };
 
 const updateLives = () => {
@@ -352,7 +354,7 @@ function draw() {
 
 
   projectTiles.forEach((projectile, index) => {
-    cleanUpProjectTile(projectile, index, projectTiles);
+    cleanUpProjectTile(projectile, index);
     projectile.update();
   });
 
@@ -360,12 +362,19 @@ function draw() {
 
   invadersProjectTile.forEach((projectile, index) => {
     if(checkIfIsOffScreen(projectile.position)){
-      removeInvadersProjectTile(invadersProjectTile, index);
+      removeInvadersProjectTile(index);
     }
 
     if (isElementCollidingWithShip(projectile, ship)) {
-      removeProjectile(invadersProjectTile, index);
-      ship.destroy();
+      removeInvadersProjectTile(index);
+      const isDamaged = ship.destroy();
+
+      if (isDamaged) {
+        spawnShipDamageEffect(
+          ship.position.x + ship.width / 2,
+          ship.position.y + ship.height / 2,
+        );
+      }
     }
 
     projectile.update();
@@ -414,4 +423,3 @@ window.addEventListener(retryGameEventName, () => {
   startMusic();
   gameStateManager.setState(gameStates.RUNNING);
 })
-

@@ -309,6 +309,78 @@ body {
   transform: translate(-50%, -50%) scale(1);
 }
 
+/* ===================== Touch Controls ===================== */
+.touch-controls {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  justify-content: space-between;
+  padding: 0 20px 32px;
+  z-index: 200;
+  pointer-events: none;
+}
+
+.touch-controls-hidden {
+  display: none !important;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .touch-controls:not(.touch-controls-hidden) {
+    display: flex;
+  }
+}
+
+.touch-btn {
+  pointer-events: all;
+  background: rgba(0, 0, 0, 0.55);
+  border: 2px solid rgba(0, 255, 255, 0.55);
+  color: #0ff;
+  font-family: "Press Start 2P", cursive;
+  font-size: 1.6rem;
+  width: 88px;
+  height: 88px;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.25);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.touch-btn:active {
+  background: rgba(0, 255, 255, 0.18);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.55);
+}
+
+/* ===================== Responsive ===================== */
+@media (max-width: 480px) {
+  .game-title {
+    font-size: 1.8rem;
+  }
+
+  .pause-title {
+    font-size: 1.2rem;
+  }
+
+  .game-over-screen-title {
+    font-size: 1.1rem;
+  }
+
+  .level-transition {
+    font-size: 1.3rem;
+  }
+
+  .retro-button {
+    font-size: 0.7rem;
+    padding: 12px 22px;
+  }
+}
+
 /* ===================== Reduced Motion ===================== */
 @media (prefers-reduced-motion: reduce) {
   .game-title,

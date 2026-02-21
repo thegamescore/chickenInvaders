@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1" />
     <title>Chicken Invaders</title>
     <link rel="stylesheet" href="./src/style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -47,6 +47,10 @@
     <div id="level-transition-text" class="level-transition">
       <span>Level </span>
       <span id="level-transition-counter" class="level-transition-counter"></span>
+    </div>
+    <div id="touch-controls" class="touch-controls touch-controls-hidden" aria-hidden="true">
+      <button id="touch-left" class="touch-btn" aria-label="Move left">◄</button>
+      <button id="touch-right" class="touch-btn" aria-label="Move right">►</button>
     </div>
     <div class="crt-scanlines" aria-hidden="true"></div>
     <canvas

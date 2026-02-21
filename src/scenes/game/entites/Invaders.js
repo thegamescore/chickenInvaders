@@ -4,6 +4,7 @@ import {
   INVADER_WIDTH,
   INVADERS_GAP_X,
   INVADERS_GAP_Y,
+  INVADERS_START_Y,
   INVADERS_VELOCITY,
 } from "../utils/gameConfig.js";
 
@@ -45,7 +46,7 @@ export class Invaders {
         height: INVADER_HEIGHT,
         position: {
           x: this.groupOffsetX + localX,
-          y: 150 + row * INVADERS_GAP_Y,
+          y: INVADERS_START_Y + row * INVADERS_GAP_Y,
         },
         velocity: {
           x: 0,

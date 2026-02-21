@@ -20,6 +20,10 @@ export const updateKeyState = (event, isPressed) => {
   }
 };
 
+export const setKeyState = (action, isPressed) => {
+  keyPressedMap[action] = isPressed;
+};
+
 export function updateShipPosition(ship) {
   if (keyPressedMap["TURN_LEFT"]) {
     //prevent ship from overlapping map

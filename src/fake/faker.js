@@ -14,27 +14,32 @@ export function getGameData() {
                 ],
                 levels: {
                     0: {
-                        numberOfInvaders: 25,
-                        gridSize: 25,
-                        numberOfPresentsPerLevel: 25
+                        numberOfInvaders: 20,  // 4 rows × 5 cols
+                        gridSize: 5,
+                        numberOfPresentsPerLevel: 5
                     },
                     1: {
-                        numberOfInvaders: 25,
-                        gridSize: 5,
-                        numberOfPresentsPerLevel: 3
+                        numberOfInvaders: 30,  // 5 rows × 6 cols
+                        gridSize: 6,
+                        numberOfPresentsPerLevel: 4
                     },
                     2: {
-                        numberOfInvaders: 50,
-                        gridSize: 10,
+                        numberOfInvaders: 42,  // 6 rows × 7 cols
+                        gridSize: 7,
                         numberOfPresentsPerLevel: 4
                     },
                     3: {
-                        numberOfInvaders: 100,
-                        gridSize: 25,
-                        numberOfPresentsPerLevel: 1
+                        numberOfInvaders: 48,  // 6 rows × 8 cols (max rows capped to 6)
+                        gridSize: 8,
+                        numberOfPresentsPerLevel: 3
+                    },
+                    4: {
+                        numberOfInvaders: 54,  // 6 rows × 9 cols (max rows capped to 6)
+                        gridSize: 9,
+                        numberOfPresentsPerLevel: 2
                     },
                 },
-                maxLevels: 4
+                maxLevels: 5
             })
         }, 1)
     })
