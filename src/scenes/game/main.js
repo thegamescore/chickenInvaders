@@ -26,6 +26,7 @@ import {keyPressedMap, updateKeyState, updateShipPosition,} from "./controls.js"
 import {assert, delay, preloadImages,} from "../../helpers/helpers.js";
 
 import {drawStars, initializeStars, updateStars} from "./stars.js";
+import {spawnDeathEffect, updateAndDrawDeathEffects} from "./deathEffects.js";
 import {createIsOffScreen, isElementCollidingWithShip, isProjectTileCollidingWithInvader,} from "./collisions.js";
 
 import {canvas, canvasHeight, canvasWidth, ctx} from "./canvas.js";
@@ -287,6 +288,7 @@ function draw() {
 
   updateStars();
   drawStars();
+  updateAndDrawDeathEffects();
 
   points.drawPoints(ctx, canvasWidth);
 
@@ -326,6 +328,10 @@ function draw() {
       if (isProjectTileCollidingWithInvader(projectile, invader)) {
         points.updatePoints(pointEvents.KILL_PROJECTILE);
         playExplosionSound();
+        spawnDeathEffect(
+          invader.position.x + invader.width / 2,
+          invader.position.y + invader.height / 2,
+        );
 
         setTimeout(() => {
           invadersOnScreen.splice(invaderIndex, 1);
