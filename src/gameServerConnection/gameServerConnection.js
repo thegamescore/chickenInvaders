@@ -1,5 +1,5 @@
-import {gameOverEventName, gameStartEventName, levelTransitionEventName} from '../events'
-import {GameServerService} from "./GameServerService";
+import {gameOverEventName, gameStartEventName, levelTransitionEventName} from "../events.js";
+import {GameServerService} from "./GameServerService.js";
 
 //todo extract gameId from louncher
 const gameId = 123
