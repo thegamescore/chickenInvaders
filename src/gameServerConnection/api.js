@@ -1,17 +1,26 @@
 import ky from 'ky';
 
-console.log(import.meta.env)
+const gameServerDomain = import.meta.env.VITE_GAME_SERVER_DOMAIN;
+export const isGameServerConfigured = Boolean(gameServerDomain);
 
-if(!import.meta.env.VITE_GAME_SERVER_DOMAIN){
-    throw new Error("Please provide VITE_GAME_SERVER_DOMAIN env")
+if (!isGameServerConfigured) {
+    console.warn("[game-server] VITE_GAME_SERVER_DOMAIN is not set. Remote match sync is disabled.");
 }
 
-const api = ky.create({
-    prefixUrl: import.meta.env.VITE_GAME_SERVER_DOMAIN,
-    timeout: 10_000,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
+const noopApi = {
+    post: () => ({
+        json: async () => null,
+    }),
+};
+
+const api = isGameServerConfigured
+    ? ky.create({
+          prefixUrl: gameServerDomain,
+          timeout: 10_000,
+          headers: {
+              'Content-Type': 'application/json',
+          },
+      })
+    : noopApi;
 
 export default api;
