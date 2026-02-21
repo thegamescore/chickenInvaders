@@ -45,6 +45,13 @@ import {PresentsModule} from "./modules/PresentModule.js";
 import {pauseMusic, playExplosionSound, playLevelTransitionSound, playPresentCatchSound, resumeMusic, startMusic, stopMusic} from "./audio.js";
 
 
+// ------------------- BACKGROUND -------------------
+
+const bgGradient = ctx.createLinearGradient(0, 0, 0, canvasHeight);
+bgGradient.addColorStop(0, "#02020f");
+bgGradient.addColorStop(0.5, "#050518");
+bgGradient.addColorStop(1, "#000008");
+
 // ------------------- INITIALIZATION  -------------------
 
 const gameStateManager = new GameStateManager();
@@ -218,6 +225,8 @@ const startLevelTransition = async () => {
 
   assert(levelData, "Current level not specified");
 
+  cleanUpIntervals();
+
   dispatchLevelTransition(currentLevel);
   stopMusic();
   playLevelTransitionSound();
@@ -270,8 +279,8 @@ function draw() {
   requestAnimationFrame(draw);
 
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = bgGradient;
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
   const numberOfLives = updateLives();
   const invadersOnScreen = invaders.invaders;

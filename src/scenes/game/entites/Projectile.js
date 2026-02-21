@@ -28,8 +28,10 @@ export class Projectile {
   draw() {
     ctx.save();
 
-    ctx.beginPath();
+    ctx.shadowColor = "rgba(0, 200, 255, 0.9)";
+    ctx.shadowBlur = 14;
 
+    ctx.beginPath();
     ctx.drawImage(
       this.image,
       this.position.x - this.width / 2,

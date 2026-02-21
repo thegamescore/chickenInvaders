@@ -96,7 +96,7 @@ export const resumeMusic = () => {
 
 export const playShootSound = () => {
   const ctx = getCtx();
-  if (ctx.state === 'suspended') return;
+  if (ctx.state === 'suspended') ctx.resume();
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
   osc.connect(gain);

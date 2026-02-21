@@ -30,9 +30,17 @@ export class Present {
         const h = this.height;
         const p = 8; // chamfer size — defines the octagon cut
 
-        // PICO-8 palette cycling (changes every 12 frames)
+        // PICO-8 palette cycling (changes every 28 frames — slower, less frantic)
         const palette = ['#ff004d', '#ffa300', '#ffec27', '#00e436', '#29adff', '#83769c', '#ff77a8', '#00b8d4'];
-        const color = palette[Math.floor(this.frame / 12) % palette.length];
+        const color = palette[Math.floor(this.frame / 28) % palette.length];
+
+        // Gentle bob (visual only — doesn't affect collision position)
+        const bobY = Math.sin(this.frame * 0.08) * 4;
+        // Gentle tilt
+        const tilt = Math.sin(this.frame * 0.04) * 0.08;
+
+        const cx = x + w / 2;
+        const cy = y + h / 2;
 
         const octagon = (ox, oy) => {
             ctx.beginPath();
@@ -50,15 +58,26 @@ export class Present {
         ctx.save();
         ctx.imageSmoothingEnabled = false;
 
-        // Hard pixel drop shadow
-        ctx.fillStyle = '#000';
+        // Apply bob + tilt around the present's center
+        ctx.translate(cx, cy + bobY);
+        ctx.rotate(tilt);
+        ctx.translate(-cx, -cy);
+
+        // Hard pixel drop shadow (no glow)
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
         octagon(x + 4, y + 4);
         ctx.fill();
 
-        // Cycling color frame fill
+        // Cycling color frame with matching glow
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 14;
         ctx.fillStyle = color;
         octagon(x, y);
         ctx.fill();
+
+        // Clear glow before clipping and drawing image
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
 
         // Clip to octagon, then draw image inset inside
         octagon(x, y);

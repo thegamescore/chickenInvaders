@@ -16,7 +16,26 @@ canvas {
 
 body {
   font-family: "Press Start 2P", cursive;
-  background: #000;
+  /* layered space background: vignette → nebula glow → three star layers */
+  background-color: #02020f;
+  background-image:
+    radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.65) 100%),
+    radial-gradient(ellipse at center, #0d0d2b 0%, transparent 65%),
+    radial-gradient(white 1px, transparent 0),
+    radial-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 0),
+    radial-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 0);
+  background-size:
+    100% 100%,
+    100% 100%,
+    160px 160px,
+    280px 280px,
+    420px 420px;
+  background-position:
+    center,
+    center,
+    42px 63px,
+    131px 173px,
+    220px 82px;
   color: white;
   display: flex;
   justify-content: center;
@@ -97,6 +116,7 @@ body {
   line-height: 1.5;
   letter-spacing: 4px;
   color: #fff;
+  text-wrap: balance;
   animation: titleGlow 2.5s ease-in-out infinite, flicker 6s infinite;
 }
 
@@ -138,6 +158,12 @@ body {
   background: #ff0;
   color: #000;
   box-shadow: 0 0 18px #ff0, 0 0 36px rgba(255, 255, 0, 0.5);
+}
+
+.retro-button:focus-visible {
+  outline: 3px solid #ff0;
+  outline-offset: 5px;
+  box-shadow: 0 0 14px #ff0, inset 0 0 8px rgba(255, 255, 0, 0.08);
 }
 
 .retro-button:active:not(:disabled) {
@@ -189,6 +215,7 @@ body {
   font-size: 2rem;
   letter-spacing: 8px;
   color: #0ff;
+  text-wrap: balance;
   text-shadow: 0 0 10px #0ff, 0 0 24px #0ff;
   animation: blink 1.6s step-end infinite;
 }
@@ -202,8 +229,8 @@ body {
   width: 420px;
   max-width: 90vw;
   background: #050505;
-  border: 3px solid #f00;
-  box-shadow: 0 0 20px #f00, 0 0 50px rgba(255, 0, 0, 0.3), inset 0 0 30px rgba(255, 0, 0, 0.05);
+  border: 2px solid #c03535;
+  box-shadow: 0 0 12px rgba(180, 40, 40, 0.6), 0 0 30px rgba(160, 30, 30, 0.15), inset 0 0 18px rgba(160, 30, 30, 0.04);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -228,8 +255,9 @@ body {
   font-size: 1.6rem;
   text-transform: uppercase;
   letter-spacing: 4px;
-  color: #f00;
-  text-shadow: 0 0 10px #f00, 0 0 22px #f00;
+  color: #cc3535;
+  text-wrap: balance;
+  text-shadow: 0 0 6px rgba(200, 50, 50, 0.7), 0 0 14px rgba(180, 30, 30, 0.4);
   animation: flicker 4s infinite;
 }
 
@@ -241,21 +269,21 @@ body {
 
 .final-score {
   font-size: 1.6rem;
-  color: #ff0;
-  text-shadow: 0 0 8px #ff0, 0 0 18px #ff0;
+  color: #c8920c;
+  text-shadow: 0 0 5px rgba(200, 145, 12, 0.7), 0 0 12px rgba(180, 125, 0, 0.35);
 }
 
 .game-over-retry-button {
-  color: #0f0;
-  border-color: #0f0;
-  box-shadow: 0 0 8px #0f0, inset 0 0 8px rgba(0, 255, 0, 0.08);
+  color: #22aa50;
+  border-color: #22aa50;
+  box-shadow: 0 0 6px rgba(30, 160, 70, 0.5), inset 0 0 6px rgba(30, 160, 70, 0.06);
   margin-top: 8px;
 }
 
 .game-over-retry-button:hover:not(:disabled) {
-  background: #0f0;
+  background: #22aa50;
   color: #000;
-  box-shadow: 0 0 18px #0f0, 0 0 36px rgba(0, 255, 0, 0.5);
+  box-shadow: 0 0 12px rgba(30, 160, 70, 0.7), 0 0 24px rgba(30, 160, 70, 0.25);
 }
 
 /* ===================== Level Transition ===================== */
@@ -279,4 +307,22 @@ body {
 .level-transition-visible {
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
+}
+
+/* ===================== Reduced Motion ===================== */
+@media (prefers-reduced-motion: reduce) {
+  .game-title,
+  .loading-assets,
+  .pause-title,
+  .game-over-screen-title {
+    animation: none;
+  }
+
+  .retro-button {
+    transition: none;
+  }
+
+  .level-transition {
+    transition: opacity 0.01ms, transform 0.01ms;
+  }
 }

@@ -45,6 +45,10 @@ export class InvaderProjectTile {
 
   draw() {
     ctx.save();
+
+    ctx.shadowColor = "rgba(255, 80, 0, 0.9)";
+    ctx.shadowBlur = 16;
+
     ctx.beginPath();
     ctx.drawImage(
       this.image,
