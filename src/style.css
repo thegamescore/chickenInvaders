@@ -1,6 +1,7 @@
 * {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 html,
@@ -13,14 +14,9 @@ canvas {
   display: block;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 body {
   font-family: "Press Start 2P", cursive;
-  background: black;
+  background: #000;
   color: white;
   display: flex;
   justify-content: center;
@@ -28,20 +24,134 @@ body {
   height: 100vh;
   flex-direction: column;
   text-align: center;
+  overflow: hidden;
+}
+
+/* ===================== CRT Scanlines ===================== */
+.crt-scanlines {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.18) 0px,
+    rgba(0, 0, 0, 0.18) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ===================== Animations ===================== */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes titleGlow {
+  0%, 100% {
+    text-shadow:
+      0 0 8px #fff,
+      0 0 20px #0ff,
+      0 0 40px #0ff,
+      0 0 70px #0ff;
+  }
+  50% {
+    text-shadow:
+      0 0 4px #fff,
+      0 0 10px #0ff,
+      0 0 20px #0ff,
+      0 0 35px #0ff;
+  }
+}
+
+@keyframes flicker {
+  0%, 94%, 100% { opacity: 1; }
+  95% { opacity: 0.7; }
+  97% { opacity: 0.9; }
+}
+
+@keyframes levelZoomIn {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+  60%  { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* ===================== Start Screen ===================== */
+.start-screen-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
 }
 
 .start-screen-hidden {
   display: none;
 }
 
-.pause-screen {
-  position: absolute;
+.game-title {
+  font-size: 2.8rem;
+  line-height: 1.5;
+  letter-spacing: 4px;
+  color: #fff;
+  animation: titleGlow 2.5s ease-in-out infinite, flicker 6s infinite;
 }
 
-.pause-screen-hidden {
+.game-subtitle {
+  font-size: 0.55rem;
+  color: #888;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.loading-assets {
+  font-size: 0.6rem;
+  color: #ff0;
+  letter-spacing: 2px;
+  animation: blink 0.9s step-end infinite;
+}
+
+.loading-assets-hidden {
   display: none;
 }
 
+/* ===================== Buttons ===================== */
+.retro-button {
+  background: transparent;
+  color: #ff0;
+  font-size: 0.85rem;
+  padding: 14px 28px;
+  border: 3px solid #ff0;
+  cursor: pointer;
+  border-radius: 0;
+  font-family: "Press Start 2P", cursive;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  box-shadow: 0 0 8px #ff0, inset 0 0 8px rgba(255, 255, 0, 0.08);
+  transition: background 0.1s, box-shadow 0.1s, color 0.1s;
+}
+
+.retro-button:hover:not(:disabled) {
+  background: #ff0;
+  color: #000;
+  box-shadow: 0 0 18px #ff0, 0 0 36px rgba(255, 255, 0, 0.5);
+}
+
+.retro-button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.retro-button:disabled {
+  color: #444;
+  border-color: #444;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* ===================== Canvas ===================== */
 .chicken-invaders-canvas {
   display: none;
 }
@@ -50,99 +160,123 @@ body {
   display: block;
 }
 
-.start-screen-content {
+/* ===================== Pause Screen ===================== */
+.pause-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+}
+
+.pause-screen-hidden {
+  display: none;
+}
+
+.pause-screen-content {
   display: flex;
   flex-direction: column;
-  gap: 50px;
+  align-items: center;
+  gap: 44px;
 }
 
-.level-transition {
-  position: absolute;
-  top: 10%;
+.pause-title {
+  font-size: 2rem;
+  letter-spacing: 8px;
+  color: #0ff;
+  text-shadow: 0 0 10px #0ff, 0 0 24px #0ff;
+  animation: blink 1.6s step-end infinite;
+}
+
+/* ===================== Game Over Screen ===================== */
+.game-over-screen {
+  position: fixed;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 3rem;
-  font-family: "Press Start 2P", monospace; /* optional retro look */
-  color: white;
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out;
-  pointer-events: none;
-  z-index: 1000;
-}
-
-.level-transition-visible {
-  opacity: 1;
-}
-
-.game-over-screen-title {
-  font-size: 32px;
-  text-transform: uppercase;
-  margin-bottom: 25px;
-}
-
-.game-over-retry-button {
-  margin-top: 25px;
-}
-
-.game-over-screen {
-  position: absolute;
-  width: 25%;
-  height: 25%;
-  background: white;
+  width: 420px;
+  max-width: 90vw;
+  background: #050505;
+  border: 3px solid #f00;
+  box-shadow: 0 0 20px #f00, 0 0 50px rgba(255, 0, 0, 0.3), inset 0 0 30px rgba(255, 0, 0, 0.05);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 100;
-}
-
-.game-over-screen-content {
-  text-align: center;
-  color: black;
-}
-
-.score-label {
-  font-size: 20px;
-  margin: 0;
-}
-
-.final-score {
-  font-size: 28px;
-  font-weight: bold;
-  margin: 10px 0 20px;
+  padding: 44px 36px;
 }
 
 .game-over-screen-hidden {
   display: none;
 }
 
-h1 {
-  font-size: 2rem;
-  text-shadow: 3px 3px 5px rgba(255, 255, 255, 0.5);
+.game-over-screen-content {
+  text-align: center;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
 }
 
-.loading-assets-hidden {
-  display: none;
-}
-
-.retro-button {
-  background: yellow;
-  color: black;
-  font-size: 1.2rem;
-  padding: 15px 30px;
-  border: 4px solid black;
-  cursor: pointer;
-  border-radius: 0;
-  transition: 0.3s;
-  font-family: "Press Start 2P", cursive;
+.game-over-screen-title {
+  font-size: 1.6rem;
   text-transform: uppercase;
-  position: relative;
-  box-shadow: 4px 4px black;
+  letter-spacing: 4px;
+  color: #f00;
+  text-shadow: 0 0 10px #f00, 0 0 22px #f00;
+  animation: flicker 4s infinite;
 }
-.retro-button:hover {
-  background: orange;
-  box-shadow: 6px 6px black;
+
+.score-label {
+  font-size: 0.55rem;
+  color: #888;
+  letter-spacing: 3px;
 }
-.retro-button:active {
-  box-shadow: 2px 2px black;
-  transform: translate(2px, 2px);
+
+.final-score {
+  font-size: 1.6rem;
+  color: #ff0;
+  text-shadow: 0 0 8px #ff0, 0 0 18px #ff0;
+}
+
+.game-over-retry-button {
+  color: #0f0;
+  border-color: #0f0;
+  box-shadow: 0 0 8px #0f0, inset 0 0 8px rgba(0, 255, 0, 0.08);
+  margin-top: 8px;
+}
+
+.game-over-retry-button:hover:not(:disabled) {
+  background: #0f0;
+  color: #000;
+  box-shadow: 0 0 18px #0f0, 0 0 36px rgba(0, 255, 0, 0.5);
+}
+
+/* ===================== Level Transition ===================== */
+.level-transition {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.4);
+  font-size: 2rem;
+  font-family: "Press Start 2P", monospace;
+  letter-spacing: 6px;
+  color: #0ff;
+  text-shadow: 0 0 10px #0ff, 0 0 24px #0ff, 0 0 48px #0ff;
+  opacity: 0;
+  transition: opacity 0.35s ease-in-out, transform 0.35s ease-out;
+  pointer-events: none;
+  z-index: 1000;
+  white-space: nowrap;
+}
+
+.level-transition-visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
 }

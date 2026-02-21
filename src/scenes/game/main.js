@@ -42,6 +42,7 @@ import {Points} from "./entites/Points.js";
 import {PresentsRegistry} from "./entites/PresentsRegistry.js";
 import {getData} from "./configData.js";
 import {PresentsModule} from "./modules/PresentModule.js";
+import {pauseMusic, playExplosionSound, playPresentCatchSound, resumeMusic, startMusic, stopMusic} from "./audio.js";
 
 
 // ------------------- INITIALIZATION  -------------------
@@ -244,6 +245,7 @@ gameStateManager.onChange((newState) => {
     stopInvaderShootingInterval();
     pauseGame();
     cleanUpScene();
+    pauseMusic();
   }
 
   if (newState === gameStates.GAME_OVER) {
@@ -251,6 +253,7 @@ gameStateManager.onChange((newState) => {
     setGameOver({
       score: points.getTotalPoints(),
     });
+    stopMusic();
   }
 
   if (newState === gameStates.LEVEL_TRANSITION) {
@@ -310,6 +313,7 @@ function draw() {
     projectTiles.forEach((projectile, projectileIndex) => {
       if (isProjectTileCollidingWithInvader(projectile, invader)) {
         points.updatePoints(pointEvents.KILL_PROJECTILE);
+        playExplosionSound();
 
         setTimeout(() => {
           invadersOnScreen.splice(invaderIndex, 1);
@@ -323,6 +327,7 @@ function draw() {
     if (isElementCollidingWithShip(present, ship)) {
       presentRegistry.removePresent(index)
       points.updatePoints(pointEvents.CATCH_PRESENT);
+      playPresentCatchSound();
     }
   }))
 
@@ -376,15 +381,18 @@ document.addEventListener("visibilitychange", () => {
 });
 
 window.addEventListener(gameStartEventName, () => {
+  startMusic();
   gameStateManager.setState(gameStates.RUNNING);
 });
 
 window.addEventListener(unpauseGameEventName, () => {
+  resumeMusic();
   gameStateManager.setState(gameStates.RUNNING);
 });
 
 window.addEventListener(retryGameEventName, () => {
-  resetGameBackToInitial()
+  resetGameBackToInitial();
+  startMusic();
   gameStateManager.setState(gameStates.RUNNING);
 })
 
