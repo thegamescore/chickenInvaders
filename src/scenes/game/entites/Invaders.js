@@ -6,6 +6,7 @@ import {
   INVADERS_GAP_Y,
   INVADERS_VELOCITY,
 } from "../utils/gameConfig.js";
+
 import { canvasWidth } from "../canvas.js";
 
 export class Invaders {
@@ -73,18 +74,18 @@ export class Invaders {
   }
 
   update() {
-    this.position.x += this.velocity.x;
-    this.position.y += this.velocity.y;
-
     if (!this.velocity.x) {
       this.velocity.x = INVADERS_VELOCITY;
     }
 
-    if (this.position.x + 200 <= 0) {
-      this.velocity.x = INVADERS_VELOCITY;
-    }
+    if (this.invaders.length === 0) return;
 
-    if (this.position.x + this.gridWidth + 200 > canvasWidth) {
+    const leftEdge = Math.min(...this.invaders.map((inv) => inv.position.x));
+    const rightEdge = Math.max(...this.invaders.map((inv) => inv.position.x + inv.width));
+
+    if (leftEdge + this.velocity.x <= 0) {
+      this.velocity.x = INVADERS_VELOCITY;
+    } else if (rightEdge + this.velocity.x >= canvasWidth) {
       this.velocity.x = -INVADERS_VELOCITY;
     }
   }

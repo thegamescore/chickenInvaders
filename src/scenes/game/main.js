@@ -42,7 +42,7 @@ import {Points} from "./entites/Points.js";
 import {PresentsRegistry} from "./entites/PresentsRegistry.js";
 import {getData} from "./configData.js";
 import {PresentsModule} from "./modules/PresentModule.js";
-import {pauseMusic, playExplosionSound, playPresentCatchSound, resumeMusic, startMusic, stopMusic} from "./audio.js";
+import {pauseMusic, playExplosionSound, playLevelTransitionSound, playPresentCatchSound, resumeMusic, startMusic, stopMusic} from "./audio.js";
 
 
 // ------------------- INITIALIZATION  -------------------
@@ -219,6 +219,8 @@ const startLevelTransition = async () => {
   assert(levelData, "Current level not specified");
 
   dispatchLevelTransition(currentLevel);
+  stopMusic();
+  playLevelTransitionSound();
 
   await delay(LEVEL_TRANSITION_DELAY_MS);
 
@@ -234,6 +236,7 @@ const startLevelTransition = async () => {
   });
 
   gameStateManager.setState(gameStates.RUNNING);
+  startMusic();
 };
 
 gameStateManager.onChange((newState) => {

@@ -126,6 +126,33 @@ export const playInvaderShootSound = () => {
   osc.stop(ctx.currentTime + 0.2);
 };
 
+export const playLevelTransitionSound = () => {
+  const ctx = getCtx();
+  if (ctx.state === 'suspended') return;
+  // Ascending fanfare: G4 → C5 → E5 → G5 → C6 (held)
+  const fanfare = [
+    { freq: 392,  dur: 0.1  },
+    { freq: 523,  dur: 0.1  },
+    { freq: 659,  dur: 0.1  },
+    { freq: 784,  dur: 0.1  },
+    { freq: 1047, dur: 0.4  },
+  ];
+  let t = ctx.currentTime;
+  fanfare.forEach(({ freq, dur }) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(freq, t);
+    gain.gain.setValueAtTime(0.2, t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.start(t);
+    osc.stop(t + dur + 0.01);
+    t += dur;
+  });
+};
+
 export const playPresentCatchSound = () => {
   const ctx = getCtx();
   if (ctx.state === 'suspended') return;
