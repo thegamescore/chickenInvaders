@@ -482,6 +482,7 @@ function draw() {
         if (isDead) {
           playExplosionSound();
           spawnDeathEffect(bx, by);
+          points.totalPoints += 10000;
         }
       }
     }
