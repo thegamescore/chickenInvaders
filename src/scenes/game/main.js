@@ -51,6 +51,8 @@ import {PresentsModule} from "./modules/PresentModule.js";
 import {PowerUp} from "./entites/PowerUp.js";
 import {BombProjectile, BOMB_EXPLOSION_RADIUS} from "./entites/BombProjectile.js";
 import {PowerUpHandler, RAPID_FIRE_INTERVAL_MS} from "./powerUpHandler.js";
+import {Boss} from "./entites/Boss.js";
+import {BossBomb} from "./entites/BossBomb.js";
 import {
   pauseMusic,
   playExplosionSound,
@@ -157,6 +159,11 @@ let powerUpSpawnerHandle = null;
 let bombProjectile = null;
 const powerUpHandler = new PowerUpHandler();
 
+let boss = null;
+const bossBombs = [];
+
+const isBossLevel = () => gameStateManager.getCurrentLevel() % 2 === 1;
+
 const restartProjectileInterval = () => {
   clearInterval(appendProjectTileIntervalId);
   if (!isAutoShotMode) return;
@@ -258,6 +265,7 @@ const handlePowerUpCollision = (type, x, y) => {
 
 const cleanUpIntervals = () => {
   clearInterval(invadersShootingIntervalId);
+  bossBombs.length = 0;
   resetPresents();
   stopPowerUpSpawner();
   powerUps.length = 0;
@@ -274,7 +282,9 @@ const cleanUpScene = () => {
 };
 
 const resumeScene = () => {
-  startInvadersShootingInterval();
+  if (!isBossLevel()) {
+    startInvadersShootingInterval();
+  }
   restartProjectileInterval();
   startPresents();
   startPowerUpSpawner();
@@ -309,10 +319,16 @@ const startLevelTransition = async () => {
 
   presentRegistry.resetPresents()
 
-  invaders.initialize({
-    numberOfInvaders: levelData.numberOfInvaders,
-    gridSize: levelData.gridSize,
-  });
+  if (isBossLevel()) {
+    boss = new Boss({ canvasWidth, canvasHeight });
+    invaders.initialize({ numberOfInvaders: 0, gridSize: 1 });
+  } else {
+    boss = null;
+    invaders.initialize({
+      numberOfInvaders: levelData.numberOfInvaders,
+      gridSize: levelData.gridSize,
+    });
+  }
 
   gameStateManager.setState(gameStates.RUNNING);
   startMusic();
@@ -377,11 +393,14 @@ function draw() {
     gameStateManager.setState(gameStates.GAME_OVER);
   }
 
-  if (
-    GAME_STATE !== gameStates.LEVEL_TRANSITION &&
-    invadersOnScreen.length <= 0
-  ) {
-    gameStateManager.setState(gameStates.LEVEL_TRANSITION);
+  if (GAME_STATE !== gameStates.LEVEL_TRANSITION) {
+    if (isBossLevel()) {
+      if (boss && boss.isDead) {
+        gameStateManager.setState(gameStates.LEVEL_TRANSITION);
+      }
+    } else if (invadersOnScreen.length <= 0) {
+      gameStateManager.setState(gameStates.LEVEL_TRANSITION);
+    }
   }
 
   const presents = presentRegistry.getPresents()
@@ -436,6 +455,83 @@ function draw() {
       }
     });
   });
+
+  // Boss update, draw, projectile collision, enrage, and shooting
+  if (boss && !boss.isDead) {
+    boss.update();
+    boss.draw();
+
+    for (let pi = projectTiles.length - 1; pi >= 0; pi--) {
+      const proj = projectTiles[pi];
+      if (isProjectTileCollidingWithInvader(proj, boss)) {
+        const isDead = boss.hit(1);
+        const bx = boss.position.x + boss.width / 2;
+        const by = boss.position.y + boss.height / 2;
+        playHitConfirmSound();
+        spawnHitEffect(bx, by);
+        spawnDamageIndicator({
+          x: bx,
+          y: boss.position.y - 8,
+          text: isDead ? '★ BOSS DOWN! ★' : `-1`,
+          color: '#ff4444',
+          ttl: isDead ? 50 : 22,
+          velocityY: -1.5,
+        });
+        triggerScreenShake({ intensity: isDead ? 14 : 3, duration: isDead ? 22 : 5 });
+        projectTiles.splice(pi, 1);
+        if (isDead) {
+          playExplosionSound();
+          spawnDeathEffect(bx, by);
+        }
+      }
+    }
+
+    // Enrage phase transition
+    if (boss.consumeEnrageEvent()) {
+      triggerScreenShake({ intensity: 20, duration: 35 });
+      spawnDamageIndicator({
+        x: boss.position.x + boss.width / 2,
+        y: boss.position.y + boss.height / 2,
+        text: '⚠ ENRAGED!',
+        color: '#ff4400',
+        ttl: 70,
+        velocityY: -0.5,
+      });
+    }
+
+    // Self-managed boss shooting
+    const newBombs = boss.getNewBombs();
+    if (newBombs) {
+      newBombs.forEach(b => bossBombs.push(new BossBomb({ ...b, canvasHeight })));
+    }
+  }
+
+  // Boss bombs update, draw, and ship collision
+  for (let bi = bossBombs.length - 1; bi >= 0; bi--) {
+    const bomb = bossBombs[bi];
+    if (bomb.isOffScreen()) { bossBombs.splice(bi, 1); continue; }
+    bomb.update();
+    if (isElementCollidingWithShip(bomb, ship)) {
+      bossBombs.splice(bi, 1);
+      const isDamaged = ship.destroy();
+      if (isDamaged) {
+        playShipHitSound();
+        spawnShipDamageEffect(
+          ship.position.x + ship.width / 2,
+          ship.position.y + ship.height / 2,
+        );
+        spawnDamageIndicator({
+          x: ship.position.x + ship.width / 2,
+          y: ship.position.y - 12,
+          text: "-1 HP",
+          color: "#ff7b7b",
+          ttl: 34,
+          velocityY: -1.1,
+        });
+        triggerScreenShake({ intensity: 9, duration: 14 });
+      }
+    }
+  }
 
   presents.forEach(((present, index) => {
     if (isElementCollidingWithShip(present, ship)) {
@@ -530,6 +626,10 @@ function draw() {
   ctx.restore();
   points.drawPoints(ctx, canvasWidth);
 
+  if (GAME_STATE === gameStates.RUNNING && boss && !boss.isDead) {
+    boss.drawHpBar();
+  }
+
   if (GAME_STATE === gameStates.RUNNING && powerUpHandler.isBombReady()) {
     const pulse = 0.55 + 0.45 * Math.sin(Date.now() * 0.006);
     ctx.save();
@@ -550,6 +650,7 @@ const resetGameBackToInitial = () => {
   cleanUpScene();
   powerUpHandler.reset();
   powerUps.length = 0;
+  boss = null;
   ship.reset();
   points.reset();
   gameStateManager.resetGame();
