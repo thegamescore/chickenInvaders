@@ -14,6 +14,7 @@ import {
 import {
   appendInvaderProjectTile,
   appendProjectTile,
+  appendSpreadProjectTiles,
   invadersProjectTile,
   projectTiles,
   removeInvadersProjectTile,
@@ -22,10 +23,10 @@ import {
   updateAndDrawInvaderShotTelegraphs,
 } from './projectTiles.js'
 
-import {availableShootingModes, gameStates, keyMap, MAX_LEVEL_REACHED, pointEvents,} from "../../utils/const.js";
+import {availableShootingModes, gameStates, keyMap, MAX_LEVEL_REACHED, pointEvents, POWER_UP_TYPES} from "../../utils/const.js";
 import {keyPressedMap, updateKeyState, updateShipPosition,} from "./controls.js";
 
-import {assert, delay, preloadImages,} from "../../helpers/helpers.js";
+import {assert, delay, getRandomArrElement, preloadImages, setRandomInterval} from "../../helpers/helpers.js";
 
 import {drawStars, initializeStars, updateStars} from "./stars.js";
 import {spawnDeathEffect, spawnHitEffect, spawnShipDamageEffect, updateAndDrawDeathEffects} from "./deathEffects.js";
@@ -47,6 +48,9 @@ import {Points} from "./entites/Points.js";
 import {PresentsRegistry} from "./entites/PresentsRegistry.js";
 import {getData} from "./configData.js";
 import {PresentsModule} from "./modules/PresentModule.js";
+import {PowerUp} from "./entites/PowerUp.js";
+import {BombProjectile, BOMB_EXPLOSION_RADIUS} from "./entites/BombProjectile.js";
+import {PowerUpHandler, RAPID_FIRE_INTERVAL_MS} from "./powerUpHandler.js";
 import {
   pauseMusic,
   playExplosionSound,
@@ -84,7 +88,7 @@ const ship = new Ship({
   height: SHIP_HEIGHT,
   position: { x: canvas.width / 2, y: canvas.height - SHIP_START_BOTTOM_OFFSET },
   velocity: { x: 0, y: 0 },
-  numberOfLives: 3,
+  numberOfLives: 5,
 });
 
 
@@ -148,15 +152,35 @@ const isKeyPressMode = MODE === availableShootingModes.KEY_PRESS;
 let appendProjectTileIntervalId;
 let invadersShootingIntervalId;
 
-const startProjectileIntervalForAutoMode = () => {
-  if (!isAutoShotMode) {
-    return;
-  }
+const powerUps = [];
+let powerUpSpawnerHandle = null;
+let bombProjectile = null;
+const powerUpHandler = new PowerUpHandler();
 
-  appendProjectTileIntervalId = setInterval(
-    appendProjectTile({ship}),
-    INTERVAL_BETWEEN_SHOOTING_IN_MS,
-  );
+const restartProjectileInterval = () => {
+  clearInterval(appendProjectTileIntervalId);
+  if (!isAutoShotMode) return;
+  const ms = powerUpHandler.isRapidFireActive() ? RAPID_FIRE_INTERVAL_MS : INTERVAL_BETWEEN_SHOOTING_IN_MS;
+  const fn = powerUpHandler.isSpreadShotActive() ? appendSpreadProjectTiles({ship}) : appendProjectTile({ship});
+  appendProjectTileIntervalId = setInterval(fn, ms);
+};
+
+const startPowerUpSpawner = () => {
+  powerUpSpawnerHandle = setRandomInterval(() => {
+    if (powerUps.length >= 3) return;
+    const type = getRandomArrElement(Object.values(POWER_UP_TYPES));
+    powerUps.push(new PowerUp({
+      type,
+      position: { x: Math.random() * (canvasWidth - 40), y: -40 },
+      width: 40,
+      height: 40,
+    }));
+  }, 5000, 9000);
+};
+
+const stopPowerUpSpawner = () => {
+  powerUpSpawnerHandle?.clear();
+  powerUpSpawnerHandle = null;
 };
 
 const startInvadersShootingInterval = () => {
@@ -171,7 +195,14 @@ const stopInvaderShootingInterval = () => {
 };
 
 window.addEventListener("keydown", (event) => {
-  if (isKeyPressMode && event.code === keyMap.SHOT && !keyPressedMap["SHOT"]) {
+  if (event.code === keyMap.SHOT && powerUpHandler.isBombReady() && !bombProjectile) {
+    if (gameStateManager.getState() === gameStates.RUNNING) {
+      powerUpHandler.consumeBomb();
+      bombProjectile = new BombProjectile({
+        position: { x: ship.position.x + ship.width / 2 - 16, y: ship.position.y - 32 },
+      });
+    }
+  } else if (isKeyPressMode && event.code === keyMap.SHOT && !keyPressedMap["SHOT"]) {
     setTimeout(appendProjectTile, 0);
   }
   updateKeyState(event, true);
@@ -205,11 +236,32 @@ const updateLives = () => {
   return lives.length;
 };
 
+const handlePowerUpCollision = (type, x, y) => {
+  const indicatorBase = { x, y: y - 16, ttl: 40, velocityY: -1.4 };
+  if (type === POWER_UP_TYPES.RAPID_FIRE) {
+    powerUpHandler.activateRapidFire(() => restartProjectileInterval());
+    restartProjectileInterval();
+    spawnDamageIndicator({ ...indicatorBase, text: "⚡ RAPID FIRE!", color: "#ffaa00" });
+  }
+  if (type === POWER_UP_TYPES.SPREAD_SHOT) {
+    powerUpHandler.activateSpreadShot(() => restartProjectileInterval());
+    restartProjectileInterval();
+    spawnDamageIndicator({ ...indicatorBase, text: "» SPREAD SHOT!", color: "#8ffaff" });
+  }
+  if (type === POWER_UP_TYPES.BOMB) {
+    powerUpHandler.activateBomb();
+    spawnDamageIndicator({ ...indicatorBase, text: "★ BOMB! PRESS SPACE", color: "#ff4fff" });
+  }
+};
+
 // ------------------- GAME LOOP -------------------
 
 const cleanUpIntervals = () => {
   clearInterval(invadersShootingIntervalId);
-  resetPresents()
+  resetPresents();
+  stopPowerUpSpawner();
+  powerUps.length = 0;
+  bombProjectile = null;
 
   if (isAutoShotMode) {
     clearInterval(appendProjectTileIntervalId);
@@ -223,9 +275,9 @@ const cleanUpScene = () => {
 
 const resumeScene = () => {
   startInvadersShootingInterval();
-  startProjectileIntervalForAutoMode();
-
-  startPresents()
+  restartProjectileInterval();
+  startPresents();
+  startPowerUpSpawner();
 };
 
 const startLevelTransition = async () => {
@@ -242,6 +294,8 @@ const startLevelTransition = async () => {
   assert(levelData, "Current level not specified");
 
   cleanUpIntervals();
+  powerUps.length = 0;
+  powerUpHandler.reset();
 
   dispatchLevelTransition(currentLevel);
   stopMusic();
@@ -347,32 +401,38 @@ function draw() {
 
     projectTiles.forEach((projectile, projectileIndex) => {
       if (isProjectTileCollidingWithInvader(projectile, invader)) {
-        const { earnedPoints, comboMultiplier } = points.updatePoints(pointEvents.KILL_PROJECTILE);
-        playExplosionSound();
-        playHitConfirmSound();
-        spawnDeathEffect(
-          invader.position.x + invader.width / 2,
-          invader.position.y + invader.height / 2,
-        );
-        spawnHitEffect(
-          invader.position.x + invader.width / 2,
-          invader.position.y + invader.height / 2,
-        );
-        spawnDamageIndicator({
-          x: invader.position.x + invader.width / 2,
-          y: invader.position.y - 8,
-          text: comboMultiplier > 1 ? `+${earnedPoints} x${comboMultiplier}` : `+${earnedPoints}`,
-          color: "#8ffaff",
-          ttl: 26,
-          velocityY: -1.5,
-        });
-        triggerScreenShake({ intensity: 4.5, duration: 7 });
+        const ix = invader.position.x + invader.width / 2;
+        const iy = invader.position.y + invader.height / 2;
+        const isDead = invader.hit();
 
-        setTimeout(() => {
-          invadersOnScreen.splice(invaderIndex, 1);
-          projectTiles.splice(projectileIndex, 1);
-          invaders.recompactRows();
-        }, 0);
+        if (isDead) {
+          const { earnedPoints, comboMultiplier } = points.updatePoints(pointEvents.KILL_PROJECTILE);
+          playExplosionSound();
+          playHitConfirmSound();
+          spawnDeathEffect(ix, iy);
+          spawnHitEffect(ix, iy);
+          spawnDamageIndicator({
+            x: ix,
+            y: invader.position.y - 8,
+            text: comboMultiplier > 1 ? `+${earnedPoints} x${comboMultiplier}` : `+${earnedPoints}`,
+            color: "#8ffaff",
+            ttl: 26,
+            velocityY: -1.5,
+          });
+          triggerScreenShake({ intensity: 4.5, duration: 7 });
+          setTimeout(() => {
+            invadersOnScreen.splice(invaderIndex, 1);
+            projectTiles.splice(projectileIndex, 1);
+            invaders.recompactRows();
+          }, 0);
+        } else {
+          playHitConfirmSound();
+          spawnHitEffect(ix, iy);
+          triggerScreenShake({ intensity: 2, duration: 4 });
+          setTimeout(() => {
+            projectTiles.splice(projectileIndex, 1);
+          }, 0);
+        }
       }
     });
   });
@@ -385,6 +445,50 @@ function draw() {
     }
   }))
 
+  for (let i = powerUps.length - 1; i >= 0; i--) {
+    const pu = powerUps[i];
+    pu.updatePowerUp({ x: 0, y: 3 });
+    if (pu.position.y > canvasHeight) { powerUps.splice(i, 1); continue; }
+    if (isElementCollidingWithShip(pu, ship)) {
+      powerUps.splice(i, 1);
+      handlePowerUpCollision(pu.type, pu.position.x + pu.width / 2, pu.position.y);
+    }
+  }
+
+  if (bombProjectile) {
+    bombProjectile.update();
+    if (bombProjectile.position.y + bombProjectile.height < 0) {
+      bombProjectile = null;
+    } else {
+      const bx = bombProjectile.position.x + bombProjectile.width / 2;
+      const by = bombProjectile.position.y + bombProjectile.height / 2;
+      const hitIndex = invadersOnScreen.findIndex(inv => {
+        const ix = inv.position.x + inv.width / 2;
+        const iy = inv.position.y + inv.height / 2;
+        const dx = bx - ix;
+        const dy = by - iy;
+        return Math.sqrt(dx * dx + dy * dy) < bombProjectile.width / 2 + inv.width / 2;
+      });
+      if (hitIndex !== -1) {
+        // Explode: kill all invaders within radius
+        for (let i = invadersOnScreen.length - 1; i >= 0; i--) {
+          const inv = invadersOnScreen[i];
+          const ix = inv.position.x + inv.width / 2;
+          const iy = inv.position.y + inv.height / 2;
+          const dx = bx - ix;
+          const dy = by - iy;
+          if (Math.sqrt(dx * dx + dy * dy) < BOMB_EXPLOSION_RADIUS) {
+            spawnDeathEffect(ix, iy);
+            spawnHitEffect(ix, iy);
+            invadersOnScreen.splice(i, 1);
+          }
+        }
+        invaders.recompactRows();
+        triggerScreenShake({ intensity: 14, duration: 22 });
+        bombProjectile = null;
+      }
+    }
+  }
 
   projectTiles.forEach((projectile, index) => {
     cleanUpProjectTile(projectile, index);
@@ -425,16 +529,31 @@ function draw() {
 
   ctx.restore();
   points.drawPoints(ctx, canvasWidth);
+
+  if (GAME_STATE === gameStates.RUNNING && powerUpHandler.isBombReady()) {
+    const pulse = 0.55 + 0.45 * Math.sin(Date.now() * 0.006);
+    ctx.save();
+    ctx.font = '12px "Press Start 2P", monospace';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = '#ff4fff';
+    ctx.shadowBlur = 14 * pulse;
+    ctx.fillStyle = `rgba(255, 79, 255, ${pulse})`;
+    ctx.fillText('★ BOMB READY — PRESS SPACE', 20, canvasHeight - 30);
+    ctx.restore();
+  }
 }
 
 draw();
 
 const resetGameBackToInitial = () => {
-  cleanUpScene()
-  ship.reset()
-  points.reset()
-  gameStateManager.resetGame()
-  presentRegistry.resetPresents()
+  cleanUpScene();
+  powerUpHandler.reset();
+  powerUps.length = 0;
+  ship.reset();
+  points.reset();
+  gameStateManager.resetGame();
+  presentRegistry.resetPresents();
 
   const { initialInvaders, initialGridSize  } = gameStateManager.getInitialData()
 

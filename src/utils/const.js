@@ -26,3 +26,9 @@ export const pointEvents = {
   KILL_PROJECTILE: "KILL_PROJECTILE",
   CATCH_PRESENT: "CATCH_PRESENT"
 };
+
+export const POWER_UP_TYPES = {
+  RAPID_FIRE:  'RAPID_FIRE',
+  SPREAD_SHOT: 'SPREAD_SHOT',
+  BOMB:        'BOMB',
+};

@@ -10,7 +10,7 @@ import {
 
 import { canvasWidth } from "../canvas.js";
 
-const COMPACT_SPEED = 0.03;
+const COMPACT_SPEED = 0.12;
 
 export class Invaders {
   constructor() {
